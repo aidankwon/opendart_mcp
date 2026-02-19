@@ -1,25 +1,98 @@
-# Open DART MCP Server
+# OpenDART MCP Server
 
-An MCP server for interacting with the Financial Supervisory Service's Open DART API.
+An MCP (Model Context Protocol) server for interacting with the South Korean Financial Supervisory Service's (FSS) Open DART API.
+
+This server provides tools to access Korean corporate filings, company overviews, financial statements, and shareholder information directly within your MCP-enabled AI assistant (like Claude or Cursor). It includes a built-in SQLite cache to optimize API usage and reduce latency.
 
 ## Features
 
-- Search for corporate filings (DS001)
-- Retrieve company overview (DS002)
-- Get financial statements (DS003)
-- Caching of API responses using SQLite to minimize API usage.
+- **Built-in Caching:** Uses SQLite to cache API responses locally and reduce redundant network calls.
+- **Comprehensive API Coverage:** Exposes multiple Open DART API endpoints as easily consumable MCP tools.
+- **TypeScript & Zod:** Strongly typed inputs and outputs for AI assistants.
 
-## Setup
+## Exposed MCP Tools
 
-1. Clone the repository.
-2. Install dependencies: `npm install`
-3. Set your API key in `.env`:
+The server provides the following tools:
+
+1. **`search_disclosures`** (DS001)
+   - Search for corporate public filings.
+   - Filters by company code, date range, report type, etc.
+2. **`get_company_overview`** (DS001/DS002)
+   - Retrieve basic profile information for a specific company (CEO name, address, website, etc.).
+3. **`get_financial_statement`** (DS003)
+   - Get key financial statement data (balance sheet, income statement) for a specific business year and report type.
+4. **`get_major_shareholders`** (DS004)
+   - Retrieve information about major shareholders and executives.
+5. **`get_capital_increase_info`** (DS005)
+   - Get details about capital increases or decreases over a time period.
+6. **`get_equity_securities_info`** (DS006)
+   - Retrieve information about issued equity securities.
+
+## Setup & Local Development
+
+1. **Clone the repository**
+2. **Install dependencies:**
+   ```bash
+   npm install
    ```
+3. **Configure API Key:**
+   Create a `.env` file in the root directory and add your Open DART API key (which you can get from [https://opendart.fss.or.kr/](https://opendart.fss.or.kr/)):
+   ```env
    OPENDART_API_KEY=your_api_key_here
    ```
-4. Build: `npm run build`
-5. Run: `npm start`
+4. **Build the project:**
+   ```bash
+   npm run build
+   ```
+   _Note: This must be run before the MCP server can be used by an AI client._
 
-## Development
+## Usage with MCP Clients
 
-- Run tests: `npm test`
+### Claude Desktop
+
+To use this with Claude Desktop, add the following to your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "opendart": {
+      "command": "node",
+      "args": ["/absolute/path/to/opendart_mcp/dist/index.js"],
+      "env": {
+        "OPENDART_API_KEY": "your_api_key_here"
+      }
+    }
+  }
+}
+```
+
+### Cursor IDE
+
+To use this with Cursor, go to `Cursor Settings > MCP` and add a new server:
+
+- **Type:** `command`
+- **Command:** `node /absolute/path/to/opendart_mcp/dist/index.js`
+
+_Note: You may need to export the `OPENDART_API_KEY` in your shell profile or modify the start command to inject the environment variable if Cursor doesn't pick up the local `.env` file._
+
+### Gemini CLI (Antigravity)
+
+To run this server with Gemini CLI, you can simply add it to your `~/.gemini/mcp/mcp.json` file. The schema is identical to Claude Desktop's config:
+
+```json
+{
+  "mcpServers": {
+    "opendart": {
+      "command": "node",
+      "args": ["/absolute/path/to/opendart_mcp/dist/index.js"],
+      "env": {
+        "OPENDART_API_KEY": "your_api_key_here"
+      }
+    }
+  }
+}
+```
+
+## License
+
+ISC
