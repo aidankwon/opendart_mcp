@@ -33,6 +33,27 @@ const server = new McpServer({
   version: '1.0.0',
 });
 
+// CorpCode: Search corporate codes locally
+server.tool(
+  'search_corpcode',
+  {
+    query: z.string().describe('Search term for company name or stock code'),
+  },
+  async ({ query }) => {
+    try {
+      const result = await client.searchCorpCode(query);
+      return {
+        content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+      };
+    } catch (error: any) {
+      return {
+        content: [{ type: 'text', text: `Error: ${error.message}` }],
+        isError: true,
+      };
+    }
+  }
+);
+
 // DS001: List Disclosures
 server.tool(
   'search_disclosures',

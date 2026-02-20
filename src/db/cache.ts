@@ -25,6 +25,17 @@ export class SqliteCache {
     
     // Create an index for expiry cleanups
     this.db.exec(`CREATE INDEX IF NOT EXISTS idx_expires_at ON cache(expires_at)`);
+
+    this.db.exec(`
+      CREATE TABLE IF NOT EXISTS corp_codes (
+        corp_code TEXT PRIMARY KEY,
+        corp_name TEXT,
+        stock_code TEXT,
+        modify_date TEXT
+      )
+    `);
+
+    this.db.exec(`CREATE INDEX IF NOT EXISTS idx_corp_name ON corp_codes(corp_name)`);
   }
 
   get(key: string): string | null {
@@ -58,5 +69,45 @@ export class SqliteCache {
   clearExpired(): void {
     const stmt = this.db.prepare('DELETE FROM cache WHERE expires_at <= ?');
     stmt.run(Date.now());
+  }
+
+  hasCorpCodes(): boolean {
+    const stmt = this.db.prepare('SELECT COUNT(*) as count FROM corp_codes');
+    const row = stmt.get() as { count: number };
+    return row.count > 0;
+  }
+
+  insertCorpCodes(codes: { corp_code: string; corp_name: string; stock_code: string; modify_date: string }[]): void {
+    const insert = this.db.prepare(`
+      INSERT OR REPLACE INTO corp_codes (corp_code, corp_name, stock_code, modify_date)
+      VALUES (@corp_code, @corp_name, @stock_code, @modify_date)
+    `);
+    
+    const insertMany = this.db.transaction((items) => {
+      for (const item of items) {
+        // fast-xml-parser might return empty strings or arrays for empty tags, ensure they are strings
+        insert.run({
+          corp_code: String(item.corp_code || ''),
+          corp_name: String(item.corp_name || ''),
+          stock_code: String(item.stock_code || '').trim(), // stock_code might be ' ' in XML
+          modify_date: String(item.modify_date || '')
+        });
+      }
+    });
+
+    insertMany(codes);
+  }
+
+  searchCorpCodes(query: string): { corp_code: string; corp_name: string; stock_code: string; modify_date: string }[] {
+    // Basic search on name or stock_code
+    const stmt = this.db.prepare(`
+      SELECT corp_code, corp_name, stock_code, modify_date 
+      FROM corp_codes 
+      WHERE corp_name LIKE ? OR stock_code = ?
+      ORDER BY corp_name ASC
+      LIMIT 50
+    `);
+    const searchTerm = `%${query}%`;
+    return stmt.all(searchTerm, query) as { corp_code: string; corp_name: string; stock_code: string; modify_date: string }[];
   }
 }

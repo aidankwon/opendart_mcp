@@ -27,6 +27,9 @@ The server provides the following tools:
    - Get details about capital increases or decreases over a time period.
 6. **`get_equity_securities_info`** (DS006)
    - Retrieve information about issued equity securities.
+7. **`search_corpcode`**
+   - Search for a company's 8-digit unique `corp_code` by company name or stock code.
+   - Downloads the full Corporate Code XML dictionary on the first run, stores it in SQLite, and queries locally for subsequent searches.
 
 ## Setup & Local Development
 

@@ -1,12 +1,15 @@
 import axios, { AxiosInstance } from 'axios';
 import { SqliteCache } from '../db/cache.js';
+import AdmZip from 'adm-zip';
+import { XMLParser } from 'fast-xml-parser';
 import {
   DisclosureSearchResponse,
   CompanyOverviewResponse,
   FinancialStatementResponse,
   MajorShareholderResponse,
   CapitalIncreaseResponse,
-  EquitySecuritiesResponse
+  EquitySecuritiesResponse,
+  CorpCode
 } from './types.js';
 
 export class OpenDartClient {
@@ -124,4 +127,46 @@ export class OpenDartClient {
   }): Promise<EquitySecuritiesResponse> {
     return this.fetch<EquitySecuritiesResponse>('/estkRs.json', params);
   }
+
+  // search_corpcode
+  async syncCorpCodes(): Promise<void> {
+    if (this.cache.hasCorpCodes()) {
+      return;
+    }
+    console.error('[DEBUG] Downloading CorpCode XML dictionary...');
+    const response = await this.axios.get('/corpCode.xml', {
+      params: { crtfc_key: this.apiKey },
+      responseType: 'arraybuffer'
+    });
+    
+    console.error('[DEBUG] Extracting CorpCode zip...');
+    const zip = new AdmZip(Buffer.from(response.data));
+    const zipEntries = zip.getEntries();
+    const xmlEntry = zipEntries.find((entry) => entry.entryName === 'CORPCODE.xml');
+    if (!xmlEntry) {
+      throw new Error('CORPCODE.xml not found in the downloaded zip file.');
+    }
+    
+    const xmlData = xmlEntry.getData().toString('utf8');
+    console.error('[DEBUG] Parsing CorpCode XML...');
+    
+    const parser = new XMLParser({ parseTagValue: false });
+    const parsed = parser.parse(xmlData);
+    
+    if (parsed.result && parsed.result.list) {
+      console.error('[DEBUG] Storing CorpCodes into local SQLite cache...');
+      let list = parsed.result.list;
+      if (!Array.isArray(list)) list = [list];
+      this.cache.insertCorpCodes(list);
+      console.error(`[DEBUG] Successfully stored ${list.length} CorpCodes.`);
+    } else {
+      throw new Error('Failed to parse CorpCode XML list.');
+    }
+  }
+
+  async searchCorpCode(query: string): Promise<CorpCode[]> {
+    await this.syncCorpCodes();
+    return this.cache.searchCorpCodes(query);
+  }
 }
+

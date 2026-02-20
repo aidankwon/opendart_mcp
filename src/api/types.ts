@@ -141,3 +141,12 @@ export interface EquitySecurity {
 export interface EquitySecuritiesResponse extends BaseResponse {
   list: EquitySecurity[];
 }
+
+// DS001: Corporate Code
+export interface CorpCode {
+  corp_code: string;
+  corp_name: string;
+  stock_code: string;
+  modify_date: string;
+}
+
