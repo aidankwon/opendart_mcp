@@ -137,6 +137,7 @@ export class OpenDartClient {
     corp_code: string;
     bsns_year: string;
     reprt_code: string;
+    idx_cl_code: string;
   }): Promise<PeriodicReportResponse> {
     return this.fetch<PeriodicReportResponse>('/fnlttSinglIndx.json', params);
   }
@@ -146,6 +147,7 @@ export class OpenDartClient {
     corp_code: string;
     bsns_year: string;
     reprt_code: string;
+    idx_cl_code: string;
   }): Promise<PeriodicReportResponse> {
     return this.fetch<PeriodicReportResponse>('/fnlttCmpnyIndx.json', params);
   }

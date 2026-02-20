@@ -227,6 +227,7 @@ server.tool(
     corp_code: z.string().describe('8-digit unique company code'),
     bsns_year: z.string().describe('Business year (YYYY)'),
     reprt_code: z.string().describe('Report code (e.g., 11011 for Annual)'),
+    idx_cl_code: z.enum(['M210000', 'M220000', 'M230000', 'M240000']).describe('Indicator classification code (M210000: Profitability, M220000: Stability, M230000: Growth, M240000: Activity)'),
   },
   async (params) => {
     try {
@@ -250,6 +251,7 @@ server.tool(
     corp_code: z.string().describe('Multiple 8-digit unique company codes separated by commas (max 5)'),
     bsns_year: z.string().describe('Business year (YYYY)'),
     reprt_code: z.string().describe('Report code (e.g., 11011 for Annual)'),
+    idx_cl_code: z.enum(['M210000', 'M220000', 'M230000', 'M240000']).describe('Indicator classification code (M210000: Profitability, M220000: Stability, M230000: Growth, M240000: Activity)'),
   },
   async (params) => {
     try {
