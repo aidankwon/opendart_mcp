@@ -245,6 +245,40 @@ export class OpenDartClient {
     return this.fetch<EquitySecuritiesResponse>('/estkRs.json', params);
   }
 
+  // Consolidated DS004: Equity Disclosure
+  async getEquityDisclosureInfo(
+    targetApi: string,
+    params: {
+      corp_code: string;
+    }
+  ): Promise<PeriodicReportResponse> {
+    return this.fetch<PeriodicReportResponse>(`/${targetApi}.json`, params);
+  }
+
+  // Consolidated DS005: Major Issues Report
+  async getMajorIssuesReportInfo(
+    targetApi: string,
+    params: {
+      corp_code: string;
+      bgn_de: string;
+      end_de: string;
+    }
+  ): Promise<PeriodicReportResponse> {
+    return this.fetch<PeriodicReportResponse>(`/${targetApi}.json`, params);
+  }
+
+  // Consolidated DS006: Registration Statements
+  async getRegistrationStatementInfo(
+    targetApi: string,
+    params: {
+      corp_code: string;
+      bgn_de: string;
+      end_de: string;
+    }
+  ): Promise<PeriodicReportResponse> {
+    return this.fetch<PeriodicReportResponse>(`/${targetApi}.json`, params);
+  }
+
   // DS002: Periodic Report Info
   async getPeriodicReportInfo(
     targetApi: string,

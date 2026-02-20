@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+- Added 3 consolidated MCP tools covering the OpenDART DS004, DS005, and DS006 API groups:
+  - `get_equity_disclosure_info` (DS004 - 2 APIs)
+  - `get_major_issues_report_info` (DS005 - 36 APIs)
+  - `get_registration_statement_info` (DS006 - 6 APIs)
+  - These tools use a human-readable `target_api` Enum to route requests dynamically, significantly expanding the server's coverage of corporate actions and reports without protocol bloat.
 - Added 6 new MCP tools to fully cover the OpenDART DS003 API group (Financial Statements):
   - `get_multiple_companies_major_accounts` (DS003)
   - `get_single_company_all_accounts` (DS003)

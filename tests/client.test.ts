@@ -110,6 +110,74 @@ describe('OpenDartClient', () => {
     });
   });
 
+  describe('getEquityDisclosureInfo', () => {
+    it('should format the correct URL based on targetApi', async () => {
+      mockCache.get.mockReturnValue(null);
+      const apiResponse = { data: { status: '000', message: 'OK', list: [] } };
+      mockAxios.get.mockResolvedValue(apiResponse);
+
+      const result = await client.getEquityDisclosureInfo('majorstock', {
+        corp_code: '00126380'
+      });
+
+      expect(mockAxios.get).toHaveBeenCalledWith('/majorstock.json', expect.objectContaining({
+        params: expect.objectContaining({
+          corp_code: '00126380',
+          crtfc_key: 'test-api-key'
+        })
+      }));
+      expect(result).toEqual(apiResponse.data);
+    });
+  });
+
+  describe('getMajorIssuesReportInfo', () => {
+    it('should format the correct URL based on targetApi', async () => {
+      mockCache.get.mockReturnValue(null);
+      const apiResponse = { data: { status: '000', message: 'OK', list: [] } };
+      mockAxios.get.mockResolvedValue(apiResponse);
+
+      const result = await client.getMajorIssuesReportInfo('dfOcr', {
+        corp_code: '00126380',
+        bgn_de: '20230101',
+        end_de: '20231231'
+      });
+
+      expect(mockAxios.get).toHaveBeenCalledWith('/dfOcr.json', expect.objectContaining({
+        params: expect.objectContaining({
+          corp_code: '00126380',
+          bgn_de: '20230101',
+          end_de: '20231231',
+          crtfc_key: 'test-api-key'
+        })
+      }));
+      expect(result).toEqual(apiResponse.data);
+    });
+  });
+
+  describe('getRegistrationStatementInfo', () => {
+    it('should format the correct URL based on targetApi', async () => {
+      mockCache.get.mockReturnValue(null);
+      const apiResponse = { data: { status: '000', message: 'OK', list: [] } };
+      mockAxios.get.mockResolvedValue(apiResponse);
+
+      const result = await client.getRegistrationStatementInfo('estkRs', {
+        corp_code: '00126380',
+        bgn_de: '20230101',
+        end_de: '20231231'
+      });
+
+      expect(mockAxios.get).toHaveBeenCalledWith('/estkRs.json', expect.objectContaining({
+        params: expect.objectContaining({
+          corp_code: '00126380',
+          bgn_de: '20230101',
+          end_de: '20231231',
+          crtfc_key: 'test-api-key'
+        })
+      }));
+      expect(result).toEqual(apiResponse.data);
+    });
+  });
+
   describe('getDocument', () => {
     it('should parse AdmZip buffer and extract xml files', async () => {
       mockCache.get.mockReturnValue(null);

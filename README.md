@@ -48,6 +48,12 @@ The server provides the following tools:
 15. **`get_document`** (DS001)
     - Downloads the full disclosure document (XML format) for a specific filing.
     - Requires a 14-digit receipt number (`rcept_no`), which can be obtained from the `search_disclosures` tool.
+16. **`get_equity_disclosure_info`** (DS004)
+    - Consolidated tool for DS004 API to retrieve large holdings or executive/major shareholder ownership reports.
+17. **`get_major_issues_report_info`** (DS005)
+    - Consolidated tool for DS005 to access 36 major corporate issues (e.g., bankruptcy, M&A, capital increases, lawsuits).
+18. **`get_registration_statement_info`** (DS006)
+    - Consolidated tool for DS006 summarizing registration statements for equity/debt securities, mergers, divisions, etc.
 
 ## Setup & Local Development
 

@@ -416,7 +416,143 @@ server.tool(
     }
   }
 );
+// DS004: Equity Disclosure
+const EQUITY_DISCLOSURE_APIS = {
+  LARGE_HOLDINGS: 'majorstock',
+  EXEC_MAJOR_SHAREHOLDER: 'elestock'
+} as const;
 
+type EquityDisclosureApiType = keyof typeof EQUITY_DISCLOSURE_APIS;
+
+server.tool(
+  'get_equity_disclosure_info',
+  {
+    target_api: z.enum(Object.keys(EQUITY_DISCLOSURE_APIS) as [EquityDisclosureApiType, ...EquityDisclosureApiType[]])
+      .describe('The specific equity disclosure category to fetch'),
+    corp_code: z.string().describe('8-digit unique company code')
+  },
+  async (params) => {
+    try {
+      const endpointStr = EQUITY_DISCLOSURE_APIS[params.target_api as EquityDisclosureApiType];
+      const { target_api, ...clientParams } = params;
+      const result = await client.getEquityDisclosureInfo(endpointStr, clientParams);
+      return {
+        content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+      };
+    } catch (error: any) {
+      return {
+        content: [{ type: 'text', text: `Error: ${error.message}` }],
+        isError: true,
+      };
+    }
+  }
+);
+
+// DS005: Major Issues Report
+const MAJOR_ISSUES_APIS = {
+  ASSET_TRANSFER_PUTBACK: 'astInhtrfEtcPtbkOpt',
+  BANKRUPTCY: 'dfOcr',
+  BUSINESS_SUSPENSION: 'bsnSp',
+  REHABILITATION_PROCEEDING: 'ctrcvsBgrq',
+  DISSOLUTION_GROUNDS: 'dsRsOcr',
+  PAID_IN_CAPITAL_INCREASE: 'piicDecsn',
+  FREE_ISSUE: 'fricDecsn',
+  PAID_FREE_ISSUE: 'pifricDecsn',
+  CAPITAL_REDUCTION: 'crDecsn',
+  BANK_MGT_PROCEEDING_START: 'bnkMngtPcbg',
+  LAWSUITS_FILED: 'lwstLg',
+  OVERSEAS_LISTING_DECISION: 'ovLstDecsn',
+  OVERSEAS_DELISTING_DECISION: 'ovDlstDecsn',
+  OVERSEAS_LISTING_COMPLETION: 'ovLst',
+  OVERSEAS_DELISTING_COMPLETION: 'ovDlst',
+  CONVERTIBLE_BOND_ISSUE: 'cvbdIsDecsn',
+  BOND_WITH_WARRANT_ISSUE: 'bdwtIsDecsn',
+  EXCHANGEABLE_BOND_ISSUE: 'exbdIsDecsn',
+  BANK_MGT_PROCEEDING_HALT: 'bnkMngtPcsp',
+  WRITE_DOWN_COCO_BOND_ISSUE: 'wdCocobdIsDecsn',
+  TREASURY_STOCK_ACQUISITION: 'tsstkAqDecsn',
+  TREASURY_STOCK_DISPOSAL: 'tsstkDpDecsn',
+  TREASURY_STOCK_TRUST_CONTRACT: 'tsstkAqTrctrCnsDecsn',
+  TREASURY_STOCK_TRUST_TERMINATION: 'tsstkAqTrctrCcDecsn',
+  BUSINESS_ACQUISITION: 'bsnInhDecsn',
+  BUSINESS_TRANSFER: 'bsnTrfDecsn',
+  TANGIBLE_ASSET_ACQUISITION: 'tgastInhDecsn',
+  TANGIBLE_ASSET_TRANSFER: 'tgastTrfDecsn',
+  OTHER_CORP_STOCK_ACQUISITION: 'otcprStkInvscrInhDecsn',
+  OTHER_CORP_STOCK_TRANSFER: 'otcprStkInvscrTrfDecsn',
+  STOCK_RELATED_BOND_ACQUISITION: 'stkrtbdInhDecsn',
+  STOCK_RELATED_BOND_TRANSFER: 'stkrtbdTrfDecsn',
+  MERGER_DECISION: 'cmpMgDecsn',
+  COMPANY_DIVISION_DECISION: 'cmpDvDecsn',
+  DIVISION_MERGER_DECISION: 'cmpDvmgDecsn',
+  SHARE_EXCHANGE_TRANSFER_DECISION: 'stkExtrDecsn'
+} as const;
+
+type MajorIssuesApiType = keyof typeof MAJOR_ISSUES_APIS;
+
+server.tool(
+  'get_major_issues_report_info',
+  {
+    target_api: z.enum(Object.keys(MAJOR_ISSUES_APIS) as [MajorIssuesApiType, ...MajorIssuesApiType[]])
+      .describe('The specific major issues report category to fetch (e.g. BANKRUPTCY, MERGER_DECISION)'),
+    corp_code: z.string().describe('8-digit unique company code'),
+    bgn_de: z.string().describe('Search start date (YYYYMMDD)'),
+    end_de: z.string().describe('Search end date (YYYYMMDD)')
+  },
+  async (params) => {
+    try {
+      const endpointStr = MAJOR_ISSUES_APIS[params.target_api as MajorIssuesApiType];
+      const { target_api, ...clientParams } = params;
+      const result = await client.getMajorIssuesReportInfo(endpointStr, clientParams);
+      return {
+        content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+      };
+    } catch (error: any) {
+      return {
+        content: [{ type: 'text', text: `Error: ${error.message}` }],
+        isError: true,
+      };
+    }
+  }
+);
+
+// DS006: Registration Statements
+const REGISTRATION_STATEMENT_APIS = {
+  EQUITY_SECURITIES: 'estkRs',
+  DEBT_SECURITIES: 'bdRs',
+  DEPOSITARY_RECEIPTS: 'stkdpRs',
+  MERGER_STATEMENT: 'mgRs',
+  SHARE_EXCHANGE_STATEMENT: 'extrRs',
+  DIVISION_STATEMENT: 'dvRs'
+} as const;
+
+type RegistrationStatementApiType = keyof typeof REGISTRATION_STATEMENT_APIS;
+
+server.tool(
+  'get_registration_statement_info',
+  {
+    target_api: z.enum(Object.keys(REGISTRATION_STATEMENT_APIS) as [RegistrationStatementApiType, ...RegistrationStatementApiType[]])
+      .describe('The specific registration statement category to fetch'),
+    corp_code: z.string().describe('8-digit unique company code'),
+    bgn_de: z.string().describe('Search start date (YYYYMMDD)'),
+    end_de: z.string().describe('Search end date (YYYYMMDD)')
+  },
+  async (params) => {
+    try {
+      const endpointStr = REGISTRATION_STATEMENT_APIS[params.target_api as RegistrationStatementApiType];
+      const { target_api, ...clientParams } = params;
+      const result = await client.getRegistrationStatementInfo(endpointStr, clientParams);
+      return {
+        content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+      };
+    } catch (error: any) {
+      return {
+        content: [{ type: 'text', text: `Error: ${error.message}` }],
+        isError: true,
+      };
+    }
+  }
+);
 // Start server
 async function main() {
   const transport = new StdioServerTransport();
