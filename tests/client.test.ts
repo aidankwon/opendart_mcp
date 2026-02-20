@@ -63,4 +63,28 @@ describe('OpenDartClient', () => {
 
     await expect(client.getDisclosureList({})).rejects.toThrow('Open DART API Error: Unregistered API key');
   });
+
+  describe('getPeriodicReportInfo', () => {
+    it('should format the correct URL based on targetApi', async () => {
+      mockCache.get.mockReturnValue(null);
+      const apiResponse = { data: { status: '000', message: 'OK', list: [] } };
+      mockAxios.get.mockResolvedValue(apiResponse);
+
+      const result = await client.getPeriodicReportInfo('tesstkStatus', {
+        corp_code: '00126380',
+        bsns_year: '2023',
+        reprt_code: '11011'
+      });
+
+      expect(mockAxios.get).toHaveBeenCalledWith('/tesstkStatus.json', expect.objectContaining({
+        params: expect.objectContaining({
+          corp_code: '00126380',
+          bsns_year: '2023',
+          reprt_code: '11011',
+          crtfc_key: 'test-api-key'
+        })
+      }));
+      expect(result).toEqual(apiResponse.data);
+    });
+  });
 });

@@ -9,6 +9,7 @@ import {
   MajorShareholderResponse,
   CapitalIncreaseResponse,
   EquitySecuritiesResponse,
+  PeriodicReportResponse,
   CorpCode
 } from './types.js';
 
@@ -126,6 +127,18 @@ export class OpenDartClient {
     end_de?: string;
   }): Promise<EquitySecuritiesResponse> {
     return this.fetch<EquitySecuritiesResponse>('/estkRs.json', params);
+  }
+
+  // DS002: Periodic Report Info
+  async getPeriodicReportInfo(
+    targetApi: string,
+    params: {
+      corp_code: string;
+      bsns_year: string;
+      reprt_code: string;
+    }
+  ): Promise<PeriodicReportResponse> {
+    return this.fetch<PeriodicReportResponse>(`/${targetApi}.json`, params);
   }
 
   // search_corpcode

@@ -24,6 +24,11 @@ export interface DisclosureSearchResponse extends BaseResponse {
   list: Disclosure[];
 }
 
+// DS002: Periodic Report Information
+export interface PeriodicReportResponse extends BaseResponse {
+  list: Record<string, any>[];
+}
+
 // DS001/DS002: Company Overview
 export interface CompanyOverviewResponse extends BaseResponse {
   corp_name: string;

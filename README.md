@@ -27,7 +27,9 @@ The server provides the following tools:
    - Get details about capital increases or decreases over a time period.
 6. **`get_equity_securities_info`** (DS006)
    - Retrieve information about issued equity securities.
-7. **`search_corpcode`**
+7. **`get_periodic_report_info`** (DS002 consolidator)
+   - Get missing features from the DS002 group, consolidated into a single generic tool for periodic reports. Fetch information such as: dividends, treasury stock, largest shareholders, minority shareholders, executive and employee statuses, executive compensations, debt securities issuance, unredeemed CP/bond balances, auditor names, audit service contracts, and usage of public/private funds.
+8. **`search_corpcode`**
    - Search for a company's 8-digit unique `corp_code` by company name or stock code.
    - Downloads the full Corporate Code XML dictionary on the first run, stores it in SQLite, and queries locally for subsequent searches.
 

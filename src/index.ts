@@ -197,6 +197,65 @@ server.tool(
   }
 );
 
+// DS002: Periodic Report Info
+const PERIODIC_REPORT_APIS = {
+  DIVIDEND: 'alotMatter',
+  TREASURY_STOCK: 'tesstkStatus',
+  LARGEST_SHAREHOLDER: 'hyshrholdrStat',
+  LARGEST_SHAREHOLDER_CHANGES: 'hyshrholdrChngStat',
+  MINORITY_SHAREHOLDER: 'mrnshrholdrStat',
+  EXECUTIVE_STATUS: 'exctvStat',
+  EMPLOYEE_STATUS: 'empStat',
+  INDIVIDUAL_EXECUTIVE_COMPENSATION_OVER_500M: 'hmvIndvdlBusAdspec',
+  TOTAL_EXECUTIVE_COMPENSATION: 'hmvAllBusAdspec',
+  INDIVIDUAL_COMPENSATION_TOP_5: 'indvdlByBusAdspec',
+  INVESTMENT_IN_OTHER_CORP: 'otrAdinvstStat',
+  TOTAL_SHARES: 'stockTotqySttus',
+  DEBT_SECURITIES_ISSUANCE: 'debsPblivSpec',
+  CP_UNREDEEMED_BALANCE: 'cpUnredmpSttus',
+  SHORT_TERM_BOND_UNREDEEMED_BALANCE: 'stbUnredmpSttus',
+  CORP_BOND_UNREDEEMED_BALANCE: 'cbUnredmpSttus',
+  HYBRID_SECURITIES_UNREDEEMED_BALANCE: 'hbdcapUnredmpSttus',
+  CONTINGENT_CAPITAL_SECURITIES_BALANCE: 'cndlCapUnredmpSttus',
+  AUDITOR_AND_OPINION: 'accnutAdtorNmAndAdtOpinion',
+  AUDIT_SERVICE_CONTRACT: 'adtSvcCtrtSttus',
+  NON_AUDIT_SERVICE_CONTRACT: 'nonAdtSvcCtrtSttus',
+  OUTSIDE_DIRECTOR_CHANGES: 'outsdExctvChngStat',
+  UNREGISTERED_EXECUTIVE_COMPENSATION: 'unregistExctvBusAdspec',
+  EXECUTIVE_COMPENSATION_APPROVED: 'hmvGenalsmtAdtSttus',
+  EXECUTIVE_COMPENSATION_BY_TYPE: 'drctrAdtAllMendngSttusMendngPymntamtTyCl',
+  USE_OF_PUBLIC_OFFERING_FUNDS: 'pblmnyUsePlnAndActual',
+  USE_OF_PRIVATE_PLACEMENT_FUNDS: 'prvsrpCptalUseDtls'
+} as const;
+
+type PeriodicReportApiType = keyof typeof PERIODIC_REPORT_APIS;
+
+server.tool(
+  'get_periodic_report_info',
+  {
+    target_api: z.enum(Object.keys(PERIODIC_REPORT_APIS) as [PeriodicReportApiType, ...PeriodicReportApiType[]])
+      .describe('The specific periodic report category to fetch (e.g. TOTAL_SHARES for 주식총수, DIVIDEND for 배당등)'),
+    corp_code: z.string().describe('8-digit unique company code'),
+    bsns_year: z.string().describe('Business year (YYYY)'),
+    reprt_code: z.string().describe('Report type code (11013: Q1, 11012: Half-year, 11014: Q3, 11011: Annual)')
+  },
+  async (params) => {
+    try {
+      const endpointStr = PERIODIC_REPORT_APIS[params.target_api as PeriodicReportApiType];
+      const { target_api, ...clientParams } = params;
+      const result = await client.getPeriodicReportInfo(endpointStr, clientParams);
+      return {
+        content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+      };
+    } catch (error: any) {
+      return {
+        content: [{ type: 'text', text: `Error: ${error.message}` }],
+        isError: true,
+      };
+    }
+  }
+);
+
 // Start server
 async function main() {
   const transport = new StdioServerTransport();
