@@ -10,7 +10,8 @@ import {
   CapitalIncreaseResponse,
   EquitySecuritiesResponse,
   PeriodicReportResponse,
-  CorpCode
+  CorpCode,
+  DocumentResponse
 } from './types.js';
 
 export class OpenDartClient {
@@ -142,6 +143,71 @@ export class OpenDartClient {
   }
 
   // search_corpcode
+  async getDocument(rcept_no: string): Promise<DocumentResponse> {
+    const endpointStr = '/document.xml';
+    const cacheKey = `${endpointStr}?rcept_no=${rcept_no}`;
+
+    console.error(`[DEBUG] Checking cache for key: ${cacheKey}`);
+    const cached = this.cache.get(cacheKey);
+    if (cached) {
+      console.error(`[DEBUG] Cache hit for ${cacheKey}`);
+      return JSON.parse(cached) as DocumentResponse;
+    }
+
+    console.error(`[DEBUG] Cache miss. Fetching from API: ${endpointStr}`);
+    try {
+      const response = await this.axios.get(endpointStr, {
+        params: { rcept_no, crtfc_key: this.apiKey },
+        responseType: 'arraybuffer'
+      });
+
+      const buffer = Buffer.from(response.data);
+
+      // Check if it's an error JSON response (starts with '{')
+      if (buffer.length > 0 && buffer[0] === 123) { // 123 is '{' in ASCII
+        const jsonStr = buffer.toString('utf8');
+        let errData;
+        try {
+          errData = JSON.parse(jsonStr);
+        } catch(e) {
+             throw new Error(`Failed to parse API error response: ${jsonStr}`);
+        }
+        if (errData && errData.status && errData.status !== '000') {
+             throw new Error(`Open DART API Error: ${errData.message} (Code: ${errData.status})`);
+        }
+      }
+
+      console.error('[DEBUG] Extracting Document zip...');
+      const zip = new AdmZip(buffer);
+      const zipEntries = zip.getEntries();
+      
+      const files: { filename: string, content: string }[] = [];
+      for (const entry of zipEntries) {
+        if (!entry.isDirectory && entry.entryName.toLowerCase().endsWith('.xml')) {
+             files.push({
+               filename: entry.entryName,
+               content: entry.getData().toString('utf8')
+             });
+        }
+      }
+
+      const result: DocumentResponse = {
+        status: '000',
+        message: '정상',
+        files
+      };
+
+      this.cache.set(cacheKey, JSON.stringify(result), 3600);
+      return result;
+
+    } catch (error: any) {
+        if (axios.isAxiosError(error)) {
+            throw new Error(`HTTP Error: ${error.message} - ${error.response?.data ? Buffer.from(error.response.data).toString('utf8') : ''}`);
+        }
+        throw error;
+    }
+  }
+
   async syncCorpCodes(): Promise<void> {
     if (this.cache.hasCorpCodes()) {
       return;

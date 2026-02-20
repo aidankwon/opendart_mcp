@@ -155,3 +155,13 @@ export interface CorpCode {
   modify_date: string;
 }
 
+// DS001: Document Download
+export interface DocumentFile {
+  filename: string;
+  content: string;
+}
+
+export interface DocumentResponse extends BaseResponse {
+  files: DocumentFile[];
+}
+

@@ -3,8 +3,30 @@ import { OpenDartClient } from '../src/api/client';
 import { SqliteCache } from '../src/db/cache';
 import axios from 'axios';
 
+import AdmZip from 'adm-zip';
+
 vi.mock('axios');
 vi.mock('../src/db/cache');
+vi.mock('adm-zip', () => {
+  return {
+    default: class MockAdmZip {
+      getEntries() {
+        return [
+          {
+            isDirectory: false,
+            entryName: 'test.xml',
+            getData: () => Buffer.from('<xml>data</xml>')
+          },
+          {
+            isDirectory: false,
+            entryName: 'ignore.txt',
+            getData: () => Buffer.from('text')
+          }
+        ];
+      }
+    }
+  };
+});
 
 describe('OpenDartClient', () => {
   let client: OpenDartClient;
@@ -87,4 +109,34 @@ describe('OpenDartClient', () => {
       expect(result).toEqual(apiResponse.data);
     });
   });
+
+  describe('getDocument', () => {
+    it('should parse AdmZip buffer and extract xml files', async () => {
+      mockCache.get.mockReturnValue(null);
+      const mockBuffer = Buffer.from('mock-zip-data');
+      mockAxios.get.mockResolvedValue({ data: mockBuffer });
+
+      const result = await client.getDocument('20230101000001');
+
+      expect(mockAxios.get).toHaveBeenCalledWith('/document.xml', expect.objectContaining({
+        params: { rcept_no: '20230101000001', crtfc_key: 'test-api-key' },
+        responseType: 'arraybuffer'
+      }));
+      expect(result.status).toBe('000');
+      expect(result.files).toHaveLength(1);
+      expect(result.files[0].filename).toBe('test.xml');
+      expect(result.files[0].content).toBe('<xml>data</xml>');
+      expect(mockCache.set).toHaveBeenCalled();
+    });
+
+    it('should handle API JSON error inside arraybuffer', async () => {
+      mockCache.get.mockReturnValue(null);
+      const errJson = JSON.stringify({ status: '010', message: 'Unregistered API key' });
+      const mockBuffer = Buffer.from(errJson, 'utf8');
+      mockAxios.get.mockResolvedValue({ data: mockBuffer });
+
+      await expect(client.getDocument('20230101000001')).rejects.toThrow('Open DART API Error: Unregistered API key');
+    });
+  });
 });
+

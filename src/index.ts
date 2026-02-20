@@ -85,6 +85,27 @@ server.tool(
   }
 );
 
+// DS001: Document Download
+server.tool(
+  'get_document',
+  {
+    rcept_no: z.string().describe('14-digit receipt number for the disclosure document'),
+  },
+  async ({ rcept_no }) => {
+    try {
+      const result = await client.getDocument(rcept_no);
+      return {
+        content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+      };
+    } catch (error: any) {
+      return {
+        content: [{ type: 'text', text: `Error: ${error.message}` }],
+        isError: true,
+      };
+    }
+  }
+);
+
 // DS001/DS002: Company Overview
 server.tool(
   'get_company_overview',
