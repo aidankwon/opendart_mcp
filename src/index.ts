@@ -34,10 +34,12 @@ const server = new McpServer({
 });
 
 // CorpCode: Search corporate codes locally
-server.tool(
+server.registerTool(
   'search_corpcode',
   {
+    inputSchema: z.object({
     query: z.string().describe('Search term for company name or stock code'),
+  })
   },
   async ({ query }) => {
     try {
@@ -55,9 +57,10 @@ server.tool(
 );
 
 // DS001: List Disclosures
-server.tool(
+server.registerTool(
   'search_disclosures',
   {
+    inputSchema: z.object({
     corp_code: z.string().optional().describe('8-digit unique company code'),
     bgn_de: z.string().optional().describe('Start date (YYYYMMDD)'),
     end_de: z.string().optional().describe('End date (YYYYMMDD)'),
@@ -69,6 +72,7 @@ server.tool(
     sort_mthd: z.enum(['asc', 'desc']).optional(),
     page_no: z.number().optional(),
     page_count: z.number().optional(),
+  })
   },
   async (params) => {
     try {
@@ -86,10 +90,12 @@ server.tool(
 );
 
 // DS001: Document Download
-server.tool(
+server.registerTool(
   'get_document',
   {
+    inputSchema: z.object({
     rcept_no: z.string().describe('14-digit receipt number for the disclosure document'),
+  })
   },
   async ({ rcept_no }) => {
     try {
@@ -107,10 +113,12 @@ server.tool(
 );
 
 // DS001/DS002: Company Overview
-server.tool(
+server.registerTool(
   'get_company_overview',
   {
+    inputSchema: z.object({
     corp_code: z.string().describe('8-digit unique company code'),
+  })
   },
   async ({ corp_code }) => {
     try {
@@ -128,13 +136,15 @@ server.tool(
 );
 
 // DS003: Financial Statement
-server.tool(
+server.registerTool(
   'get_financial_statement',
   {
+    inputSchema: z.object({
     corp_code: z.string().describe('8-digit unique company code'),
     bsns_year: z.string().describe('Business year (YYYY)'),
     reprt_code: z.string().describe('Report code (e.g., 11011 for Annual)'),
     fs_div: z.enum(['CFS', 'OFS']).describe('FS division (CFS: Consolidated, OFS: Separate)'),
+  })
   },
   async (params) => {
     try {
@@ -152,13 +162,15 @@ server.tool(
 );
 
 // DS003: Multiple Companies Major Accounts
-server.tool(
+server.registerTool(
   'get_multiple_companies_major_accounts',
   {
+    inputSchema: z.object({
     corp_code: z.string().describe('Multiple 8-digit unique company codes separated by commas (max 5)'),
     bsns_year: z.string().describe('Business year (YYYY)'),
     reprt_code: z.string().describe('Report code (e.g., 11011 for Annual)'),
     fs_div: z.enum(['CFS', 'OFS']).optional().describe('FS division (CFS: Consolidated, OFS: Separate)'),
+  })
   },
   async (params) => {
     try {
@@ -176,13 +188,15 @@ server.tool(
 );
 
 // DS003: Single Company All Accounts
-server.tool(
+server.registerTool(
   'get_single_company_all_accounts',
   {
+    inputSchema: z.object({
     corp_code: z.string().describe('8-digit unique company code'),
     bsns_year: z.string().describe('Business year (YYYY)'),
     reprt_code: z.string().describe('Report code (e.g., 11011 for Annual)'),
     fs_div: z.enum(['CFS', 'OFS']).describe('FS division (CFS: Consolidated, OFS: Separate)'),
+  })
   },
   async (params) => {
     try {
@@ -200,10 +214,12 @@ server.tool(
 );
 
 // DS003: XBRL Taxonomy
-server.tool(
+server.registerTool(
   'get_xbrl_taxonomy',
   {
+    inputSchema: z.object({
     sj_div: z.string().describe('Statement type (BS1, BS2, BS3, BS4, IS1, IS2, IS3, CIS1, CIS2, CIS3, CF1, CF2, CF3, SCE1, SCE2)'),
+  })
   },
   async ({ sj_div }) => {
     try {
@@ -221,13 +237,15 @@ server.tool(
 );
 
 // DS003: Single Company Major Indicators
-server.tool(
+server.registerTool(
   'get_single_company_major_indicators',
   {
+    inputSchema: z.object({
     corp_code: z.string().describe('8-digit unique company code'),
     bsns_year: z.string().describe('Business year (YYYY)'),
     reprt_code: z.string().describe('Report code (e.g., 11011 for Annual)'),
     idx_cl_code: z.enum(['M210000', 'M220000', 'M230000', 'M240000']).describe('Indicator classification code (M210000: Profitability, M220000: Stability, M230000: Growth, M240000: Activity)'),
+  })
   },
   async (params) => {
     try {
@@ -245,13 +263,15 @@ server.tool(
 );
 
 // DS003: Multiple Companies Major Indicators
-server.tool(
+server.registerTool(
   'get_multiple_companies_major_indicators',
   {
+    inputSchema: z.object({
     corp_code: z.string().describe('Multiple 8-digit unique company codes separated by commas (max 5)'),
     bsns_year: z.string().describe('Business year (YYYY)'),
     reprt_code: z.string().describe('Report code (e.g., 11011 for Annual)'),
     idx_cl_code: z.enum(['M210000', 'M220000', 'M230000', 'M240000']).describe('Indicator classification code (M210000: Profitability, M220000: Stability, M230000: Growth, M240000: Activity)'),
+  })
   },
   async (params) => {
     try {
@@ -269,12 +289,14 @@ server.tool(
 );
 
 // DS003: XBRL Original File
-server.tool(
+server.registerTool(
   'get_xbrl_original_file',
   {
+    inputSchema: z.object({
     corp_code: z.string().describe('8-digit unique company code'),
     bsns_year: z.string().describe('Business year (YYYY)'),
     reprt_code: z.string().describe('Report code (e.g., 11011 for Annual)'),
+  })
   },
   async (params) => {
     try {
@@ -292,10 +314,12 @@ server.tool(
 );
 
 // DS004: Major Shareholders
-server.tool(
+server.registerTool(
   'get_major_shareholders',
   {
+    inputSchema: z.object({
     corp_code: z.string().describe('8-digit unique company code'),
+  })
   },
   async ({ corp_code }) => {
     try {
@@ -313,12 +337,14 @@ server.tool(
 );
 
 // DS005: Capital Increase
-server.tool(
+server.registerTool(
   'get_capital_increase_info',
   {
+    inputSchema: z.object({
     corp_code: z.string().describe('8-digit unique company code'),
     bgn_de: z.string().optional().describe('Start date (YYYYMMDD)'),
     end_de: z.string().optional().describe('End date (YYYYMMDD)'),
+  })
   },
   async (params) => {
     try {
@@ -336,12 +362,14 @@ server.tool(
 );
 
 // DS006: Equity Securities
-server.tool(
+server.registerTool(
   'get_equity_securities_info',
   {
+    inputSchema: z.object({
     corp_code: z.string().describe('8-digit unique company code'),
     bgn_de: z.string().optional().describe('Start date (YYYYMMDD)'),
     end_de: z.string().optional().describe('End date (YYYYMMDD)'),
+  })
   },
   async (params) => {
     try {
@@ -391,14 +419,16 @@ const PERIODIC_REPORT_APIS = {
 
 type PeriodicReportApiType = keyof typeof PERIODIC_REPORT_APIS;
 
-server.tool(
+server.registerTool(
   'get_periodic_report_info',
   {
+    inputSchema: z.object({
     target_api: z.enum(Object.keys(PERIODIC_REPORT_APIS) as [PeriodicReportApiType, ...PeriodicReportApiType[]])
       .describe('The specific periodic report category to fetch (e.g. TOTAL_SHARES for 주식총수, DIVIDEND for 배당등)'),
     corp_code: z.string().describe('8-digit unique company code'),
     bsns_year: z.string().describe('Business year (YYYY)'),
     reprt_code: z.string().describe('Report type code (11013: Q1, 11012: Half-year, 11014: Q3, 11011: Annual)')
+  })
   },
   async (params) => {
     try {
@@ -424,12 +454,14 @@ const EQUITY_DISCLOSURE_APIS = {
 
 type EquityDisclosureApiType = keyof typeof EQUITY_DISCLOSURE_APIS;
 
-server.tool(
+server.registerTool(
   'get_equity_disclosure_info',
   {
+    inputSchema: z.object({
     target_api: z.enum(Object.keys(EQUITY_DISCLOSURE_APIS) as [EquityDisclosureApiType, ...EquityDisclosureApiType[]])
       .describe('The specific equity disclosure category to fetch'),
     corp_code: z.string().describe('8-digit unique company code')
+  })
   },
   async (params) => {
     try {
@@ -490,14 +522,16 @@ const MAJOR_ISSUES_APIS = {
 
 type MajorIssuesApiType = keyof typeof MAJOR_ISSUES_APIS;
 
-server.tool(
+server.registerTool(
   'get_major_issues_report_info',
   {
+    inputSchema: z.object({
     target_api: z.enum(Object.keys(MAJOR_ISSUES_APIS) as [MajorIssuesApiType, ...MajorIssuesApiType[]])
       .describe('The specific major issues report category to fetch (e.g. BANKRUPTCY, MERGER_DECISION)'),
     corp_code: z.string().describe('8-digit unique company code'),
     bgn_de: z.string().describe('Search start date (YYYYMMDD)'),
     end_de: z.string().describe('Search end date (YYYYMMDD)')
+  })
   },
   async (params) => {
     try {
@@ -528,14 +562,16 @@ const REGISTRATION_STATEMENT_APIS = {
 
 type RegistrationStatementApiType = keyof typeof REGISTRATION_STATEMENT_APIS;
 
-server.tool(
+server.registerTool(
   'get_registration_statement_info',
   {
+    inputSchema: z.object({
     target_api: z.enum(Object.keys(REGISTRATION_STATEMENT_APIS) as [RegistrationStatementApiType, ...RegistrationStatementApiType[]])
       .describe('The specific registration statement category to fetch'),
     corp_code: z.string().describe('8-digit unique company code'),
     bgn_de: z.string().describe('Search start date (YYYYMMDD)'),
     end_de: z.string().describe('Search end date (YYYYMMDD)')
+  })
   },
   async (params) => {
     try {

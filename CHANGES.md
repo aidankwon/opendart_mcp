@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- Refactored `McpServer` tools API to use the new `registerTool` method instead of the deprecated `McpServer.tool` method. All 18 tools were migrated to explicitly use `z.object()` wrapped schemas inside a configuration object, improving type safety as per the updated `@modelcontextprotocol/sdk` documentation.
+
 - Added 3 consolidated MCP tools covering the OpenDART DS004, DS005, and DS006 API groups:
   - `get_equity_disclosure_info` (DS004 - 2 APIs)
   - `get_major_issues_report_info` (DS005 - 36 APIs)
