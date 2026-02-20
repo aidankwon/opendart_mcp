@@ -1,4 +1,8 @@
 #!/usr/bin/env node
+
+// Redirect console.log to console.error to avoid polluting MCP stdio JSON-RPC
+console.log = console.error;
+
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
@@ -17,7 +21,10 @@ if (!API_KEY) {
 }
 
 // Initialize dependencies
-const cache = new SqliteCache(path.join(process.cwd(), 'cache.db'));
+const cachePath = process.env.OPENDART_CACHE_DIR
+  ? path.join(process.env.OPENDART_CACHE_DIR, 'cache.db')
+  : path.join(__dirname, '..', 'cache.db');
+const cache = new SqliteCache(cachePath);
 const client = new OpenDartClient(API_KEY, cache);
 
 // Create MCP Server
