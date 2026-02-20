@@ -21,21 +21,33 @@ The server provides the following tools:
 2. **`get_company_overview`** (DS001/DS002)
    - Retrieve basic profile information for a specific company (CEO name, address, website, etc.).
 3. **`get_financial_statement`** (DS003)
-   - Get key financial statement data (balance sheet, income statement) for a specific business year and report type.
-4. **`get_major_shareholders`** (DS004)
-   - Retrieve information about major shareholders and executives.
-5. **`get_capital_increase_info`** (DS005)
-   - Get details about capital increases or decreases over a time period.
-6. **`get_equity_securities_info`** (DS006)
-   - Retrieve information about issued equity securities.
-7. **`get_periodic_report_info`** (DS002 consolidator)
-   - Get missing features from the DS002 group, consolidated into a single generic tool for periodic reports. Fetch information such as: dividends, treasury stock, largest shareholders, minority shareholders, executive and employee statuses, executive compensations, debt securities issuance, unredeemed CP/bond balances, auditor names, audit service contracts, and usage of public/private funds.
-8. **`search_corpcode`**
-   - Search for a company's 8-digit unique `corp_code` by company name or stock code.
-   - Downloads the full Corporate Code XML dictionary on the first run, stores it in SQLite, and queries locally for subsequent searches.
-9. **`get_document`** (DS001)
-   - Downloads the full disclosure document (XML format) for a specific filing.
-   - Requires a 14-digit receipt number (`rcept_no`), which can be obtained from the `search_disclosures` tool.
+   - Get key financial statement data (balance sheet, income statement) for a single company.
+4. **`get_multiple_companies_major_accounts`** (DS003)
+   - Get key financial statement data for multiple companies (max 5).
+5. **`get_single_company_all_accounts`** (DS003)
+   - Get the complete set of financial statement accounts for a single company.
+6. **`get_xbrl_taxonomy`** (DS003)
+   - Get the standard IFRS-based XBRL taxonomy and account format guidelines.
+7. **`get_single_company_major_indicators`** (DS003)
+   - Get computed major financial indicators (e.g., ROE, ROA, Debt ratio) for a single company.
+8. **`get_multiple_companies_major_indicators`** (DS003)
+   - Get computed major financial indicators for multiple companies (max 5).
+9. **`get_xbrl_original_file`** (DS003)
+   - Downloads the raw XBRL financial statement ZIP file, extracting XML, XSD, TXT, and HTM components.
+10. **`get_major_shareholders`** (DS004)
+    - Retrieve information about major shareholders and executives.
+11. **`get_capital_increase_info`** (DS005)
+    - Get details about capital increases or decreases over a time period.
+12. **`get_equity_securities_info`** (DS006)
+    - Retrieve information about issued equity securities.
+13. **`get_periodic_report_info`** (DS002 consolidator)
+    - Get missing features from the DS002 group, consolidated into a single generic tool for periodic reports. Fetch information such as: dividends, treasury stock, largest shareholders, minority shareholders, executive and employee statuses, executive compensations, debt securities issuance, unredeemed CP/bond balances, auditor names, audit service contracts, and usage of public/private funds.
+14. **`search_corpcode`**
+    - Search for a company's 8-digit unique `corp_code` by company name or stock code.
+    - Downloads the full Corporate Code XML dictionary on the first run, stores it in SQLite, and queries locally for subsequent searches.
+15. **`get_document`** (DS001)
+    - Downloads the full disclosure document (XML format) for a specific filing.
+    - Requires a 14-digit receipt number (`rcept_no`), which can be obtained from the `search_disclosures` tool.
 
 ## Setup & Local Development
 

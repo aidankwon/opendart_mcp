@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+- Added 6 new MCP tools to fully cover the OpenDART DS003 API group (Financial Statements):
+  - `get_multiple_companies_major_accounts` (DS003)
+  - `get_single_company_all_accounts` (DS003)
+  - `get_xbrl_taxonomy` (DS003)
+  - `get_single_company_major_indicators` (DS003)
+  - `get_multiple_companies_major_indicators` (DS003)
+  - `get_xbrl_original_file` (DS003)
+  - Also mapped `get_financial_statement` to explicitly use `fnlttSinglAcnt.json` to properly fetch single company major accounts.
+  - **Limitation Discovered:** For `get_xbrl_original_file`, the extracted XBRL files can include `.txt`, `.htm`, `.xsd`, and `.xbrl` file extensions alongside traditional XML. Adjusted parsing to ingest all these typical archive structures instead of relying only on `.xml`.
 - Added `get_document` MCP tool to retrieve the full original disclosure document (in XML format) from OpenDART. Uses the 14-digit receipt number (`rcept_no`) to download and extract the ZIP archive in memory, returning the XML contents.
   - **Found Error:** `TypeError: () => ({ getEntries: ... }) is not a constructor` when running `vitest` for `adm-zip` mock.
   - **Cause:** `adm-zip` exports a constructor, but the mock was returning a function, causing test failure upon `new AdmZip(buffer)`.

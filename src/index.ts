@@ -151,6 +151,144 @@ server.tool(
   }
 );
 
+// DS003: Multiple Companies Major Accounts
+server.tool(
+  'get_multiple_companies_major_accounts',
+  {
+    corp_code: z.string().describe('Multiple 8-digit unique company codes separated by commas (max 5)'),
+    bsns_year: z.string().describe('Business year (YYYY)'),
+    reprt_code: z.string().describe('Report code (e.g., 11011 for Annual)'),
+    fs_div: z.enum(['CFS', 'OFS']).optional().describe('FS division (CFS: Consolidated, OFS: Separate)'),
+  },
+  async (params) => {
+    try {
+      const result = await client.getMultipleCompaniesMajorAccounts(params);
+      return {
+        content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+      };
+    } catch (error: any) {
+      return {
+        content: [{ type: 'text', text: `Error: ${error.message}` }],
+        isError: true,
+      };
+    }
+  }
+);
+
+// DS003: Single Company All Accounts
+server.tool(
+  'get_single_company_all_accounts',
+  {
+    corp_code: z.string().describe('8-digit unique company code'),
+    bsns_year: z.string().describe('Business year (YYYY)'),
+    reprt_code: z.string().describe('Report code (e.g., 11011 for Annual)'),
+    fs_div: z.enum(['CFS', 'OFS']).describe('FS division (CFS: Consolidated, OFS: Separate)'),
+  },
+  async (params) => {
+    try {
+      const result = await client.getSingleCompanyAllAccounts(params);
+      return {
+        content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+      };
+    } catch (error: any) {
+      return {
+        content: [{ type: 'text', text: `Error: ${error.message}` }],
+        isError: true,
+      };
+    }
+  }
+);
+
+// DS003: XBRL Taxonomy
+server.tool(
+  'get_xbrl_taxonomy',
+  {
+    sj_div: z.string().describe('Statement type (BS1, BS2, BS3, BS4, IS1, IS2, IS3, CIS1, CIS2, CIS3, CF1, CF2, CF3, SCE1, SCE2)'),
+  },
+  async ({ sj_div }) => {
+    try {
+      const result = await client.getXbrlTaxonomy(sj_div);
+      return {
+        content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+      };
+    } catch (error: any) {
+      return {
+        content: [{ type: 'text', text: `Error: ${error.message}` }],
+        isError: true,
+      };
+    }
+  }
+);
+
+// DS003: Single Company Major Indicators
+server.tool(
+  'get_single_company_major_indicators',
+  {
+    corp_code: z.string().describe('8-digit unique company code'),
+    bsns_year: z.string().describe('Business year (YYYY)'),
+    reprt_code: z.string().describe('Report code (e.g., 11011 for Annual)'),
+  },
+  async (params) => {
+    try {
+      const result = await client.getSingleCompanyMajorIndicators(params);
+      return {
+        content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+      };
+    } catch (error: any) {
+      return {
+        content: [{ type: 'text', text: `Error: ${error.message}` }],
+        isError: true,
+      };
+    }
+  }
+);
+
+// DS003: Multiple Companies Major Indicators
+server.tool(
+  'get_multiple_companies_major_indicators',
+  {
+    corp_code: z.string().describe('Multiple 8-digit unique company codes separated by commas (max 5)'),
+    bsns_year: z.string().describe('Business year (YYYY)'),
+    reprt_code: z.string().describe('Report code (e.g., 11011 for Annual)'),
+  },
+  async (params) => {
+    try {
+      const result = await client.getMultipleCompaniesMajorIndicators(params);
+      return {
+        content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+      };
+    } catch (error: any) {
+      return {
+        content: [{ type: 'text', text: `Error: ${error.message}` }],
+        isError: true,
+      };
+    }
+  }
+);
+
+// DS003: XBRL Original File
+server.tool(
+  'get_xbrl_original_file',
+  {
+    corp_code: z.string().describe('8-digit unique company code'),
+    bsns_year: z.string().describe('Business year (YYYY)'),
+    reprt_code: z.string().describe('Report code (e.g., 11011 for Annual)'),
+  },
+  async (params) => {
+    try {
+      const result = await client.getXbrlOriginalFile(params);
+      return {
+        content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+      };
+    } catch (error: any) {
+      return {
+        content: [{ type: 'text', text: `Error: ${error.message}` }],
+        isError: true,
+      };
+    }
+  }
+);
+
 // DS004: Major Shareholders
 server.tool(
   'get_major_shareholders',

@@ -97,14 +97,127 @@ export class OpenDartClient {
     return this.fetch<CompanyOverviewResponse>('/company.json', { corp_code: corpCode });
   }
 
-  // DS003
+  // DS003: Single Company Major Accounts
   async getFinancialStatement(params: {
     corp_code: string;
     bsns_year: string;
     reprt_code: string;
     fs_div: 'CFS' | 'OFS';
   }): Promise<FinancialStatementResponse> {
+    return this.fetch<FinancialStatementResponse>('/fnlttSinglAcnt.json', params);
+  }
+
+  // DS003: Multiple Companies Major Accounts
+  async getMultipleCompaniesMajorAccounts(params: {
+    corp_code: string;
+    bsns_year: string;
+    reprt_code: string;
+    fs_div?: 'CFS' | 'OFS';
+  }): Promise<FinancialStatementResponse> {
+    return this.fetch<FinancialStatementResponse>('/fnlttMultiAcnt.json', params);
+  }
+
+  // DS003: Single Company All Accounts
+  async getSingleCompanyAllAccounts(params: {
+    corp_code: string;
+    bsns_year: string;
+    reprt_code: string;
+    fs_div: 'CFS' | 'OFS';
+  }): Promise<FinancialStatementResponse> {
     return this.fetch<FinancialStatementResponse>('/fnlttSinglAcntAll.json', params);
+  }
+
+  // DS003: XBRL Taxonomy Definition
+  async getXbrlTaxonomy(sj_div: string): Promise<PeriodicReportResponse> {
+    return this.fetch<PeriodicReportResponse>('/xbrlTaxonomy.json', { sj_div });
+  }
+
+  // DS003: Single Company Major Indicators
+  async getSingleCompanyMajorIndicators(params: {
+    corp_code: string;
+    bsns_year: string;
+    reprt_code: string;
+  }): Promise<PeriodicReportResponse> {
+    return this.fetch<PeriodicReportResponse>('/fnlttSinglIndx.json', params);
+  }
+
+  // DS003: Multiple Companies Major Indicators
+  async getMultipleCompaniesMajorIndicators(params: {
+    corp_code: string;
+    bsns_year: string;
+    reprt_code: string;
+  }): Promise<PeriodicReportResponse> {
+    return this.fetch<PeriodicReportResponse>('/fnlttCmpnyIndx.json', params);
+  }
+
+  // DS003: XBRL Original File 다운로드
+  async getXbrlOriginalFile(params: {
+    corp_code: string;
+    bsns_year: string;
+    reprt_code: string;
+  }): Promise<DocumentResponse> {
+    const endpointStr = '/fnlttXbrl.xml';
+    const cacheKey = `${endpointStr}?corp_code=${params.corp_code}&bsns_year=${params.bsns_year}&reprt_code=${params.reprt_code}`;
+
+    console.error(`[DEBUG] Checking cache for key: ${cacheKey}`);
+    const cached = this.cache.get(cacheKey);
+    if (cached) {
+      console.error(`[DEBUG] Cache hit for ${cacheKey}`);
+      return JSON.parse(cached) as DocumentResponse;
+    }
+
+    console.error(`[DEBUG] Cache miss. Fetching from API: ${endpointStr}`);
+    try {
+      const response = await this.axios.get(endpointStr, {
+        params: { ...params, crtfc_key: this.apiKey },
+        responseType: 'arraybuffer'
+      });
+
+      const buffer = Buffer.from(response.data);
+
+      // Check if it's an error JSON response (starts with '{' - ASCII 123)
+      if (buffer.length > 0 && buffer[0] === 123) {
+        const jsonStr = buffer.toString('utf8');
+        let errData;
+        try {
+          errData = JSON.parse(jsonStr);
+        } catch(e) {
+             throw new Error(`Failed to parse API error response: ${jsonStr}`);
+        }
+        if (errData && errData.status && errData.status !== '000') {
+             throw new Error(`Open DART API Error: ${errData.message} (Code: ${errData.status})`);
+        }
+      }
+
+      console.error('[DEBUG] Extracting XBRL zip...');
+      const zip = new AdmZip(buffer);
+      const zipEntries = zip.getEntries();
+      
+      const files: { filename: string, content: string }[] = [];
+      for (const entry of zipEntries) {
+        if (!entry.isDirectory && (entry.entryName.toLowerCase().endsWith('.xml') || entry.entryName.toLowerCase().endsWith('.xsd') || entry.entryName.toLowerCase().endsWith('.htm') || entry.entryName.toLowerCase().endsWith('.txt'))) {
+             files.push({
+               filename: entry.entryName,
+               content: entry.getData().toString('utf8')
+             });
+        }
+      }
+
+      const result: DocumentResponse = {
+        status: '000',
+        message: '정상',
+        files
+      };
+
+      this.cache.set(cacheKey, JSON.stringify(result), 3600);
+      return result;
+
+    } catch (error: any) {
+        if (axios.isAxiosError(error)) {
+            throw new Error(`HTTP Error: ${error.message} - ${error.response?.data ? Buffer.from(error.response.data).toString('utf8') : ''}`);
+        }
+        throw error;
+    }
   }
 
   // DS004

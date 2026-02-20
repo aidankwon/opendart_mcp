@@ -138,5 +138,29 @@ describe('OpenDartClient', () => {
       await expect(client.getDocument('20230101000001')).rejects.toThrow('Open DART API Error: Unregistered API key');
     });
   });
+  describe('getXbrlOriginalFile', () => {
+    it('should parse AdmZip buffer and extract xbrl zip files', async () => {
+      mockCache.get.mockReturnValue(null);
+      const mockBuffer = Buffer.from('mock-zip-data');
+      mockAxios.get.mockResolvedValue({ data: mockBuffer });
+
+      const result = await client.getXbrlOriginalFile({
+        corp_code: '00126380',
+        bsns_year: '2023',
+        reprt_code: '11011'
+      });
+
+      expect(mockAxios.get).toHaveBeenCalledWith('/fnlttXbrl.xml', expect.objectContaining({
+        params: { corp_code: '00126380', bsns_year: '2023', reprt_code: '11011', crtfc_key: 'test-api-key' },
+        responseType: 'arraybuffer'
+      }));
+      expect(result.status).toBe('000');
+      expect(result.files).toHaveLength(2);
+      expect(result.files[0].filename).toBe('test.xml');
+      expect(result.files[1].filename).toBe('ignore.txt');
+      expect(mockCache.set).toHaveBeenCalled();
+    });
+  });
 });
+
 
