@@ -86,10 +86,20 @@ export class SqliteCache {
     const insertMany = this.db.transaction((items) => {
       for (const item of items) {
         // fast-xml-parser might return empty strings or arrays for empty tags, ensure they are strings
+        let corpCode = String(item.corp_code || '').trim();
+        if (corpCode.length > 0) {
+            corpCode = corpCode.padStart(8, '0');
+        }
+        
+        let stockCode = String(item.stock_code || '').trim();
+        if (stockCode.length > 0) {
+            stockCode = stockCode.padStart(6, '0');
+        }
+
         insert.run({
-          corp_code: String(item.corp_code || ''),
+          corp_code: corpCode,
           corp_name: String(item.corp_name || ''),
-          stock_code: String(item.stock_code || '').trim(), // stock_code might be ' ' in XML
+          stock_code: stockCode,
           modify_date: String(item.modify_date || '')
         });
       }
@@ -99,15 +109,15 @@ export class SqliteCache {
   }
 
   searchCorpCodes(query: string): { corp_code: string; corp_name: string; stock_code: string; modify_date: string }[] {
-    // Basic search on name or stock_code
+    // Basic search on name, stock_code, or corp_code
     const stmt = this.db.prepare(`
       SELECT corp_code, corp_name, stock_code, modify_date 
       FROM corp_codes 
-      WHERE corp_name LIKE ? OR stock_code = ?
+      WHERE corp_name LIKE ? OR stock_code = ? OR corp_code = ?
       ORDER BY corp_name ASC
       LIMIT 50
     `);
     const searchTerm = `%${query}%`;
-    return stmt.all(searchTerm, query) as { corp_code: string; corp_name: string; stock_code: string; modify_date: string }[];
+    return stmt.all(searchTerm, query, query) as { corp_code: string; corp_name: string; stock_code: string; modify_date: string }[];
   }
 }

@@ -31,4 +31,6 @@
   - **Successful Fix:** Corrected the endpoint mapping in `src/index.ts` from `empStat` to `empSttus`, rebuilt the project, and successfully fetched LG Electronics' employee status.
   - **Limitation Discovered:** While OpenDART provides structured data APIs, deep unstructured text in specific disclosures (like board resolutions for dividends) cannot be fetched directly via these APIs. Such documents must be read directly from the DART viewer website (`dart.fss.or.kr`) using the receipt number (`rcpNo`).
 - Added `search_corpcode` MCP tool to search for OpenDART corporate codes locally using SQLite persistence.
+  - **Found Bug:** The `corp_code` and `stock_code` values stored in the local SQLite cache were missing their leading zeros if they happened to be parsed as numeric by the XML engine, breaking downstream API calls which require 8-digit and 6-digit strings respectively.
+  - **Successful Fix:** Explicitly padded `corp_code` to 8 characters and `stock_code` to 6 characters prior to Database insertion. Additionally updated the cache query logic to allow searching strictly by 8-digit `corp_code` as well.
 - Initial project setup.

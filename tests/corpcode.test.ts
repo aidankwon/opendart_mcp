@@ -39,9 +39,9 @@ describe('OpenDartClient - CorpCode', () => {
               <modify_date>20230101</modify_date>
           </list>
           <list>
-              <corp_code>00164742</corp_code>
+              <corp_code>164742</corp_code>
               <corp_name>현대자동차</corp_name>
-              <stock_code>005380</stock_code>
+              <stock_code>5380</stock_code>
               <modify_date>20230101</modify_date>
           </list>
       </result>
@@ -72,6 +72,12 @@ describe('OpenDartClient - CorpCode', () => {
     
     expect(results2).toHaveLength(1);
     expect(results2[0].corp_name).toBe('현대자동차');
-    expect(results2[0].corp_code).toBe('00164742');
+    expect(results2[0].corp_code).toBe('00164742'); // Should be padded
+    expect(results2[0].stock_code).toBe('005380'); // Should be padded
+    
+    // Third search by padded corp_code
+    const results3 = await client.searchCorpCode('00126380');
+    expect(results3).toHaveLength(1);
+    expect(results3[0].corp_name).toBe('삼성전자');
   });
 });
