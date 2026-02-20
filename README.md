@@ -17,6 +17,7 @@ The server provides the following tools:
 1. **`search_disclosures`** (DS001)
    - Search for corporate public filings.
    - Filters by company code, date range, report type, etc.
+   - _Note: This API returns metadata and receipt numbers (`rcept_no`). To read the unstructured body of a specific disclosure document, you must navigate to `https://dart.fss.or.kr/dsaf001/main.do?rcpNo={rcept_no}` using a web browser._
 2. **`get_company_overview`** (DS001/DS002)
    - Retrieve basic profile information for a specific company (CEO name, address, website, etc.).
 3. **`get_financial_statement`** (DS003)
