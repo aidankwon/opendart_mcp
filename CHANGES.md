@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+- Enhanced all 18 MCP tools with robust parameter hints to improve LLM accuracy:
+  - Added strict Regex validation for `corp_code` (8 digits), `rcept_no` (14 digits), and dates (8 digits).
+  - Implemented exhaustive `Enums` for `reprt_code` (Report Types), `idx_cl_code` (Indicators), and `sj_div` (XBRL Taxonomy).
+  - Improved `describe()` strings for all parameters, providing clear format guidance (e.g., `YYYYMMDD`) and contextual examples.
+  - This significantly reduces "parameter hallucination" by providing the LLM with both semantic and structural constraints in the MCP tool definitions.
+
 - Improved cache reliability and portability:
   - Changed the default cache path to `~/.opendart-mcp/cache.db` to avoid "readonly database" or permission errors when the server is executed from restricted environments.
   - Made the SQLite cache initialization non-fatal; the MCP server will now gracefully continue even if the local database cannot be opened or written to.

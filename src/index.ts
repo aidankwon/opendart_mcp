@@ -47,8 +47,8 @@ server.registerTool(
   'search_corpcode',
   {
     inputSchema: z.object({
-    query: z.string().describe('Search term for company name or stock code'),
-  })
+      query: z.string().describe('Search term for company name or stock code (e.g., "삼성전자" or "005930")'),
+    })
   },
   async ({ query }) => {
     try {
@@ -70,18 +70,18 @@ server.registerTool(
   'search_disclosures',
   {
     inputSchema: z.object({
-    corp_code: z.string().optional().describe('8-digit unique company code'),
-    bgn_de: z.string().optional().describe('Start date (YYYYMMDD)'),
-    end_de: z.string().optional().describe('End date (YYYYMMDD)'),
-    last_reprt_at: z.enum(['Y', 'N']).optional().describe('Search only last report'),
-    pblntf_ty: z.string().optional().describe('Publication type'),
-    pblntf_detail_ty: z.string().optional().describe('Detailed publication type'),
-    corp_cls: z.enum(['Y', 'K', 'N', 'E']).optional().describe('Corporation class'),
-    sort: z.enum(['date', 'crp', 'rpt']).optional(),
-    sort_mthd: z.enum(['asc', 'desc']).optional(),
-    page_no: z.number().optional(),
-    page_count: z.number().optional(),
-  })
+      corp_code: z.string().regex(/^\d{8}$/).optional().describe('8-digit unique company code. Use search_corpcode first to find this.'),
+      bgn_de: z.string().regex(/^\d{8}$/).optional().describe('Start date in YYYYMMDD format (e.g., 20240101)'),
+      end_de: z.string().regex(/^\d{8}$/).optional().describe('End date in YYYYMMDD format (e.g., 20241231)'),
+      last_reprt_at: z.enum(['Y', 'N']).optional().describe('Search only the latest report (Y/N)'),
+      pblntf_ty: z.string().optional().describe('Publication type code (e.g., A for Periodic, B for Fair Disclosure)'),
+      pblntf_detail_ty: z.string().optional().describe('Detailed publication type code'),
+      corp_cls: z.enum(['Y', 'K', 'N', 'E']).optional().describe('Corporation class: Y (KOSPI), K (KOSDAQ), N (KONEX), E (ETC)'),
+      sort: z.enum(['date', 'crp', 'rpt']).optional().describe('Sort field: date (Publication date), crp (Company name), rpt (Report name)'),
+      sort_mthd: z.enum(['asc', 'desc']).optional().describe('Sort method: asc (Ascending), desc (Descending)'),
+      page_no: z.number().optional().describe('Page number'),
+      page_count: z.number().optional().describe('Number of items per page (max 100)'),
+    })
   },
   async (params) => {
     try {
@@ -103,8 +103,8 @@ server.registerTool(
   'get_document',
   {
     inputSchema: z.object({
-    rcept_no: z.string().describe('14-digit receipt number for the disclosure document'),
-  })
+      rcept_no: z.string().regex(/^\d{14}$/).describe('14-digit receipt number for the disclosure document (found in search_disclosures results)'),
+    })
   },
   async ({ rcept_no }) => {
     try {
@@ -126,8 +126,8 @@ server.registerTool(
   'get_company_overview',
   {
     inputSchema: z.object({
-    corp_code: z.string().describe('8-digit unique company code'),
-  })
+      corp_code: z.string().regex(/^\d{8}$/).describe('8-digit unique company code (e.g., 00126380)'),
+    })
   },
   async ({ corp_code }) => {
     try {
@@ -149,11 +149,11 @@ server.registerTool(
   'get_financial_statement',
   {
     inputSchema: z.object({
-    corp_code: z.string().describe('8-digit unique company code'),
-    bsns_year: z.string().describe('Business year (YYYY)'),
-    reprt_code: z.string().describe('Report code (e.g., 11011 for Annual)'),
-    fs_div: z.enum(['CFS', 'OFS']).describe('FS division (CFS: Consolidated, OFS: Separate)'),
-  })
+      corp_code: z.string().regex(/^\d{8}$/).describe('8-digit unique company code (e.g., 00126380)'),
+      bsns_year: z.string().regex(/^\d{4}$/).describe('Business year in YYYY format (e.g., 2023)'),
+      reprt_code: z.enum(['11013', '11012', '11014', '11011']).describe('Report code: 11013 (Q1), 11012 (Half-year), 11014 (Q3), 11011 (Annual)'),
+      fs_div: z.enum(['CFS', 'OFS']).describe('FS division: CFS (Consolidated), OFS (Separate)'),
+    })
   },
   async (params) => {
     try {
@@ -175,11 +175,11 @@ server.registerTool(
   'get_multiple_companies_major_accounts',
   {
     inputSchema: z.object({
-    corp_code: z.string().describe('Multiple 8-digit unique company codes separated by commas (max 5)'),
-    bsns_year: z.string().describe('Business year (YYYY)'),
-    reprt_code: z.string().describe('Report code (e.g., 11011 for Annual)'),
-    fs_div: z.enum(['CFS', 'OFS']).optional().describe('FS division (CFS: Consolidated, OFS: Separate)'),
-  })
+      corp_code: z.string().describe('Up to 5 corporate codes separated by commas (e.g., "00126380,00164779")'),
+      bsns_year: z.string().regex(/^\d{4}$/).describe('Business year in YYYY format (e.g., 2023)'),
+      reprt_code: z.enum(['11013', '11012', '11014', '11011']).describe('Report code: 11013 (Q1), 11012 (Half-year), 11014 (Q3), 11011 (Annual)'),
+      fs_div: z.enum(['CFS', 'OFS']).optional().describe('FS division: CFS (Consolidated), OFS (Separate)'),
+    })
   },
   async (params) => {
     try {
@@ -201,11 +201,11 @@ server.registerTool(
   'get_single_company_all_accounts',
   {
     inputSchema: z.object({
-    corp_code: z.string().describe('8-digit unique company code'),
-    bsns_year: z.string().describe('Business year (YYYY)'),
-    reprt_code: z.string().describe('Report code (e.g., 11011 for Annual)'),
-    fs_div: z.enum(['CFS', 'OFS']).describe('FS division (CFS: Consolidated, OFS: Separate)'),
-  })
+      corp_code: z.string().regex(/^\d{8}$/).describe('8-digit unique company code (e.g., 00126380)'),
+      bsns_year: z.string().regex(/^\d{4}$/).describe('Business year in YYYY format (e.g., 2023)'),
+      reprt_code: z.enum(['11013', '11012', '11014', '11011']).describe('Report code: 11013 (Q1), 11012 (Half-year), 11014 (Q3), 11011 (Annual)'),
+      fs_div: z.enum(['CFS', 'OFS']).describe('FS division: CFS (Consolidated), OFS (Separate)'),
+    })
   },
   async (params) => {
     try {
@@ -227,8 +227,9 @@ server.registerTool(
   'get_xbrl_taxonomy',
   {
     inputSchema: z.object({
-    sj_div: z.string().describe('Statement type (BS1, BS2, BS3, BS4, IS1, IS2, IS3, CIS1, CIS2, CIS3, CF1, CF2, CF3, SCE1, SCE2)'),
-  })
+      sj_div: z.enum(['BS1', 'BS2', 'BS3', 'BS4', 'IS1', 'IS2', 'IS3', 'CIS1', 'CIS2', 'CIS3', 'CF1', 'CF2', 'CF3', 'SCE1', 'SCE2'])
+        .describe('Statement type: BS (Balance Sheet), IS (Income Statement), CIS (Comp. Income), CF (Cash Flow), SCE (Equity Change). Suffixes: 1 (Gen-Industry), 2 (Fin-Industry), 3 (Combined), 4 (Other)'),
+    })
   },
   async ({ sj_div }) => {
     try {
@@ -250,11 +251,11 @@ server.registerTool(
   'get_single_company_major_indicators',
   {
     inputSchema: z.object({
-    corp_code: z.string().describe('8-digit unique company code'),
-    bsns_year: z.string().describe('Business year (YYYY)'),
-    reprt_code: z.string().describe('Report code (e.g., 11011 for Annual)'),
-    idx_cl_code: z.enum(['M210000', 'M220000', 'M230000', 'M240000']).describe('Indicator classification code (M210000: Profitability, M220000: Stability, M230000: Growth, M240000: Activity)'),
-  })
+      corp_code: z.string().regex(/^\d{8}$/).describe('8-digit unique company code (e.g., 00126380)'),
+      bsns_year: z.string().regex(/^\d{4}$/).describe('Business year in YYYY format (e.g., 2023)'),
+      reprt_code: z.enum(['11013', '11012', '11014', '11011']).describe('Report code: 11013 (Q1), 11012 (Half-year), 11014 (Q3), 11011 (Annual)'),
+      idx_cl_code: z.enum(['M210000', 'M220000', 'M230000', 'M240000']).describe('Indicator classification code: M210000 (Profitability), M220000 (Stability), M230000 (Growth), M240000 (Activity)'),
+    })
   },
   async (params) => {
     try {
@@ -302,10 +303,10 @@ server.registerTool(
   'get_xbrl_original_file',
   {
     inputSchema: z.object({
-    corp_code: z.string().describe('8-digit unique company code'),
-    bsns_year: z.string().describe('Business year (YYYY)'),
-    reprt_code: z.string().describe('Report code (e.g., 11011 for Annual)'),
-  })
+      corp_code: z.string().regex(/^\d{8}$/).describe('8-digit unique company code (e.g., 00126380)'),
+      bsns_year: z.string().regex(/^\d{4}$/).describe('Business year in YYYY format (e.g., 2023)'),
+      reprt_code: z.enum(['11013', '11012', '11014', '11011']).describe('Report code: 11013 (Q1), 11012 (Half-year), 11014 (Q3), 11011 (Annual)'),
+    })
   },
   async (params) => {
     try {
@@ -327,8 +328,8 @@ server.registerTool(
   'get_major_shareholders',
   {
     inputSchema: z.object({
-    corp_code: z.string().describe('8-digit unique company code'),
-  })
+      corp_code: z.string().regex(/^\d{8}$/).describe('8-digit unique company code (e.g., 00126380)'),
+    })
   },
   async ({ corp_code }) => {
     try {
@@ -350,9 +351,9 @@ server.registerTool(
   'get_capital_increase_info',
   {
     inputSchema: z.object({
-    corp_code: z.string().describe('8-digit unique company code'),
-    bgn_de: z.string().optional().describe('Start date (YYYYMMDD)'),
-    end_de: z.string().optional().describe('End date (YYYYMMDD)'),
+    corp_code: z.string().regex(/^\d{8}$/).describe('8-digit unique company code (e.g., 00126380)'),
+    bgn_de: z.string().regex(/^\d{8}$/).optional().describe('Start date in YYYYMMDD format (e.g., 20240101)'),
+    end_de: z.string().regex(/^\d{8}$/).optional().describe('End date in YYYYMMDD format (e.g., 20241231)'),
   })
   },
   async (params) => {
@@ -375,7 +376,7 @@ server.registerTool(
   'get_equity_securities_info',
   {
     inputSchema: z.object({
-    corp_code: z.string().describe('8-digit unique company code'),
+    corp_code: z.string().regex(/^d{8}$/).describe('8-digit unique company code (e.g., 00126380)'),
     bgn_de: z.string().optional().describe('Start date (YYYYMMDD)'),
     end_de: z.string().optional().describe('End date (YYYYMMDD)'),
   })
@@ -432,12 +433,12 @@ server.registerTool(
   'get_periodic_report_info',
   {
     inputSchema: z.object({
-    target_api: z.enum(Object.keys(PERIODIC_REPORT_APIS) as [PeriodicReportApiType, ...PeriodicReportApiType[]])
-      .describe('The specific periodic report category to fetch (e.g. TOTAL_SHARES for 주식총수, DIVIDEND for 배당등)'),
-    corp_code: z.string().describe('8-digit unique company code'),
-    bsns_year: z.string().describe('Business year (YYYY)'),
-    reprt_code: z.string().describe('Report type code (11013: Q1, 11012: Half-year, 11014: Q3, 11011: Annual)')
-  })
+      target_api: z.enum(Object.keys(PERIODIC_REPORT_APIS) as [PeriodicReportApiType, ...PeriodicReportApiType[]])
+        .describe('Specific periodic report category to fetch (e.g., EMPLOYEE_STATUS, TOTAL_SHARES, DIVIDEND)'),
+      corp_code: z.string().regex(/^\d{8}$/).describe('8-digit unique company code (e.g., 00126380)'),
+      bsns_year: z.string().regex(/^\d{4}$/).describe('Business year in YYYY format (e.g., 2023)'),
+      reprt_code: z.enum(['11013', '11012', '11014', '11011']).describe('Report code: 11013 (Q1), 11012 (Half-year), 11014 (Q3), 11011 (Annual)')
+    })
   },
   async (params) => {
     try {
@@ -467,10 +468,10 @@ server.registerTool(
   'get_equity_disclosure_info',
   {
     inputSchema: z.object({
-    target_api: z.enum(Object.keys(EQUITY_DISCLOSURE_APIS) as [EquityDisclosureApiType, ...EquityDisclosureApiType[]])
-      .describe('The specific equity disclosure category to fetch'),
-    corp_code: z.string().describe('8-digit unique company code')
-  })
+      target_api: z.enum(Object.keys(EQUITY_DISCLOSURE_APIS) as [EquityDisclosureApiType, ...EquityDisclosureApiType[]])
+        .describe('Specific equity disclosure category (LARGE_HOLDINGS or EXEC_MAJOR_SHAREHOLDER)'),
+      corp_code: z.string().regex(/^\d{8}$/).describe('8-digit unique company code (e.g., 00126380)')
+    })
   },
   async (params) => {
     try {
@@ -535,12 +536,12 @@ server.registerTool(
   'get_major_issues_report_info',
   {
     inputSchema: z.object({
-    target_api: z.enum(Object.keys(MAJOR_ISSUES_APIS) as [MajorIssuesApiType, ...MajorIssuesApiType[]])
-      .describe('The specific major issues report category to fetch (e.g. BANKRUPTCY, MERGER_DECISION)'),
-    corp_code: z.string().describe('8-digit unique company code'),
-    bgn_de: z.string().describe('Search start date (YYYYMMDD)'),
-    end_de: z.string().describe('Search end date (YYYYMMDD)')
-  })
+      target_api: z.enum(Object.keys(MAJOR_ISSUES_APIS) as [MajorIssuesApiType, ...MajorIssuesApiType[]])
+        .describe('Specific major issues report category (e.g., MERGER_DECISION, PAID_IN_CAPITAL_INCREASE, BANKRUPTCY)'),
+      corp_code: z.string().regex(/^\d{8}$/).describe('8-digit unique company code (e.g., 00126380)'),
+      bgn_de: z.string().regex(/^\d{8}$/).describe('Search start date in YYYYMMDD format (e.g., 20240101)'),
+      end_de: z.string().regex(/^\d{8}$/).describe('Search end date in YYYYMMDD format (e.g., 20241231)')
+    })
   },
   async (params) => {
     try {
@@ -575,12 +576,12 @@ server.registerTool(
   'get_registration_statement_info',
   {
     inputSchema: z.object({
-    target_api: z.enum(Object.keys(REGISTRATION_STATEMENT_APIS) as [RegistrationStatementApiType, ...RegistrationStatementApiType[]])
-      .describe('The specific registration statement category to fetch'),
-    corp_code: z.string().describe('8-digit unique company code'),
-    bgn_de: z.string().describe('Search start date (YYYYMMDD)'),
-    end_de: z.string().describe('Search end date (YYYYMMDD)')
-  })
+      target_api: z.enum(Object.keys(REGISTRATION_STATEMENT_APIS) as [RegistrationStatementApiType, ...RegistrationStatementApiType[]])
+        .describe('Specific registration statement category (e.g., EQUITY_SECURITIES, DEBT_SECURITIES, MERGER_STATEMENT)'),
+      corp_code: z.string().regex(/^\d{8}$/).describe('8-digit unique company code (e.g., 00126380)'),
+      bgn_de: z.string().regex(/^\d{8}$/).describe('Search start date in YYYYMMDD format (e.g., 20240101)'),
+      end_de: z.string().regex(/^\d{8}$/).describe('Search end date in YYYYMMDD format (e.g., 20241231)')
+    })
   },
   async (params) => {
     try {
