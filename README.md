@@ -143,9 +143,28 @@ docker run -d \
 
 Alternatively, you can use Docker Compose with the provided `docker-compose.yml`. The project is configured with CI/CD to automatically build and push new images to GHCR on every push to `main`.
 
-### 2. Manual SSE Startup
+### 2. Build from Source
 
-If you prefer to run it manually:
+If you want to build the image yourself:
+
+```bash
+docker build -t opendart-mcp:latest .
+```
+
+Then run it:
+
+```bash
+docker run -d \
+  -p 3000:3000 \
+  -e OPENDART_API_KEY=your_api_key_here \
+  -v opendart-cache:/app/data \
+  --name opendart-mcp \
+  opendart-mcp:latest
+```
+
+### 3. Manual SSE Startup
+
+If you prefer to run it manually without Docker:
 
 ```bash
 npm run build

@@ -1,5 +1,10 @@
 # Changes
 
+## [1.2.1] - 2026-02-21
+
+- Fixed `MODULE_NOT_FOUND` error in Docker container by moving several runtime dependencies (`@modelcontextprotocol/sdk`, `axios`, `better-sqlite3`, `dotenv`, `zod`) from `devDependencies` to `dependencies` in `package.json`.
+- Updated `README.md` with instructions on how to build the Docker image locally from source.
+
 ## [1.2.0] - 2026-02-21
 
 - Added support for **SSE (Server-Sent Events)** transport to enable compatibility with n8n and other remote MCP clients.
