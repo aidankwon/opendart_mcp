@@ -1,6 +1,17 @@
 # Changes
 
-## [Unreleased]
+## [1.1.0] - 2026-02-21
+
+### Added
+
+- Multi-layer token usage reduction pipeline in `src/utils.ts`.
+- `sanitizeResponse`: Recursively removes `null`, `undefined`, empty strings, and empty arrays.
+- `factorCommonFields`: Extracts redundant fields across list items into a top-level `common` object.
+- XML Content Optimization: Automatically parses XML content to JSON, removes boilerplate, and flattens redundant `#text` wrappers.
+- JSON minification: Removed indentation from all tool outputs.
+- Unit tests for optimization utilities in `tests/utils.test.ts`.
+
+## [1.0.0] - 2026-02-21
 
 - Enhanced all 18 MCP tools with robust parameter hints to improve LLM accuracy:
   - Added strict Regex validation for `corp_code` (8 digits), `rcept_no` (14 digits), and dates (8 digits).

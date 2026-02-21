@@ -8,6 +8,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { z } from 'zod';
 import { OpenDartClient } from './api/client.js';
 import { SqliteCache } from './db/cache.js';
+import { optimizeResponse } from './utils.js';
 import dotenv from 'dotenv';
 import path from 'path';
 import fs from 'fs';
@@ -54,7 +55,7 @@ server.registerTool(
     try {
       const result = await client.searchCorpCode(query);
       return {
-        content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+        content: [{ type: 'text', text: JSON.stringify(optimizeResponse(result)) }],
       };
     } catch (error: any) {
       return {
@@ -87,7 +88,7 @@ server.registerTool(
     try {
       const result = await client.getDisclosureList(params);
       return {
-        content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+        content: [{ type: 'text', text: JSON.stringify(optimizeResponse(result)) }],
       };
     } catch (error: any) {
       return {
@@ -110,7 +111,7 @@ server.registerTool(
     try {
       const result = await client.getDocument(rcept_no);
       return {
-        content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+        content: [{ type: 'text', text: JSON.stringify(optimizeResponse(result)) }],
       };
     } catch (error: any) {
       return {
@@ -133,7 +134,7 @@ server.registerTool(
     try {
       const result = await client.getCompanyOverview(corp_code);
       return {
-        content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+        content: [{ type: 'text', text: JSON.stringify(optimizeResponse(result)) }],
       };
     } catch (error: any) {
       return {
@@ -159,7 +160,7 @@ server.registerTool(
     try {
       const result = await client.getFinancialStatement(params);
       return {
-        content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+        content: [{ type: 'text', text: JSON.stringify(optimizeResponse(result)) }],
       };
     } catch (error: any) {
       return {
@@ -185,7 +186,7 @@ server.registerTool(
     try {
       const result = await client.getMultipleCompaniesMajorAccounts(params);
       return {
-        content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+        content: [{ type: 'text', text: JSON.stringify(optimizeResponse(result)) }],
       };
     } catch (error: any) {
       return {
@@ -211,7 +212,7 @@ server.registerTool(
     try {
       const result = await client.getSingleCompanyAllAccounts(params);
       return {
-        content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+        content: [{ type: 'text', text: JSON.stringify(optimizeResponse(result)) }],
       };
     } catch (error: any) {
       return {
@@ -235,7 +236,7 @@ server.registerTool(
     try {
       const result = await client.getXbrlTaxonomy(sj_div);
       return {
-        content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+        content: [{ type: 'text', text: JSON.stringify(optimizeResponse(result)) }],
       };
     } catch (error: any) {
       return {
@@ -261,7 +262,7 @@ server.registerTool(
     try {
       const result = await client.getSingleCompanyMajorIndicators(params);
       return {
-        content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+        content: [{ type: 'text', text: JSON.stringify(optimizeResponse(result)) }],
       };
     } catch (error: any) {
       return {
@@ -287,7 +288,7 @@ server.registerTool(
     try {
       const result = await client.getMultipleCompaniesMajorIndicators(params);
       return {
-        content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+        content: [{ type: 'text', text: JSON.stringify(optimizeResponse(result)) }],
       };
     } catch (error: any) {
       return {
@@ -312,7 +313,7 @@ server.registerTool(
     try {
       const result = await client.getXbrlOriginalFile(params);
       return {
-        content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+        content: [{ type: 'text', text: JSON.stringify(optimizeResponse(result)) }],
       };
     } catch (error: any) {
       return {
@@ -335,7 +336,7 @@ server.registerTool(
     try {
       const result = await client.getMajorShareholders(corp_code);
       return {
-        content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+        content: [{ type: 'text', text: JSON.stringify(optimizeResponse(result)) }],
       };
     } catch (error: any) {
       return {
@@ -360,7 +361,7 @@ server.registerTool(
     try {
       const result = await client.getCapitalIncrease(params);
       return {
-        content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+        content: [{ type: 'text', text: JSON.stringify(optimizeResponse(result)) }],
       };
     } catch (error: any) {
       return {
@@ -385,7 +386,7 @@ server.registerTool(
     try {
       const result = await client.getEquitySecurities(params);
       return {
-        content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+        content: [{ type: 'text', text: JSON.stringify(optimizeResponse(result)) }],
       };
     } catch (error: any) {
       return {
@@ -446,7 +447,7 @@ server.registerTool(
       const { target_api, ...clientParams } = params;
       const result = await client.getPeriodicReportInfo(endpointStr, clientParams);
       return {
-        content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+        content: [{ type: 'text', text: JSON.stringify(optimizeResponse(result)) }],
       };
     } catch (error: any) {
       return {
@@ -479,7 +480,7 @@ server.registerTool(
       const { target_api, ...clientParams } = params;
       const result = await client.getEquityDisclosureInfo(endpointStr, clientParams);
       return {
-        content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+        content: [{ type: 'text', text: JSON.stringify(optimizeResponse(result)) }],
       };
     } catch (error: any) {
       return {
@@ -549,7 +550,7 @@ server.registerTool(
       const { target_api, ...clientParams } = params;
       const result = await client.getMajorIssuesReportInfo(endpointStr, clientParams);
       return {
-        content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+        content: [{ type: 'text', text: JSON.stringify(optimizeResponse(result)) }],
       };
     } catch (error: any) {
       return {
@@ -589,7 +590,7 @@ server.registerTool(
       const { target_api, ...clientParams } = params;
       const result = await client.getRegistrationStatementInfo(endpointStr, clientParams);
       return {
-        content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+        content: [{ type: 'text', text: JSON.stringify(optimizeResponse(result)) }],
       };
     } catch (error: any) {
       return {
