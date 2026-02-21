@@ -7,6 +7,8 @@ This server provides tools to access Korean corporate filings, company overviews
 ## Features
 
 - **Built-in Caching:** Uses SQLite to cache API responses locally and reduce redundant network calls.
+- **Modern HTTP Transport:** Uses the `StreamableHTTPServerTransport` for robust HTTP/SSE communication.
+- **Concurrent Multi-Client Support:** Supports multiple simultaneous client connections with isolated session state.
 - **Comprehensive API Coverage:** Exposes multiple Open DART API endpoints as easily consumable MCP tools.
 - **TypeScript & Zod:** Strongly typed inputs and outputs for AI assistants.
 
@@ -122,7 +124,7 @@ To run this server with Gemini CLI, you can simply add it to your `~/.gemini/mcp
 
 ## Deployment to n8n
 
-For n8n instances (especially those running in Docker or remotely), it is recommended to use the **SSE (Server-Sent Events)** transport.
+For n8n instances (especially those running in Docker or remotely), it is recommended to use the **Streamable HTTP (SSE)** transport. This modern transport supports multiple concurrent sessions reliably.
 
 ### 1. Run using Docker (SSE)
 
@@ -175,8 +177,8 @@ npm run start:sse
 
 1.  In your n8n workflow, add an **MCP Client Tool** node.
 2.  Set **Server Transport** to `SSE`.
-3.  Set **SSE URL** to `http://your-host-ip:3000/sse`.
-4.  Configure any necessary authentication if you've added a proxy (this server has no built-in auth for the SSE endpoint itself).
+3.  Set **SSE URL** to `http://your-host-ip:3000/mcp`.
+4.  Configure any necessary authentication if you've added a proxy (this server has no built-in auth for the `/mcp` endpoint itself).
 
 ## License
 

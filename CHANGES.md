@@ -1,5 +1,22 @@
 # Changes
 
+## [2.1.0] - 2026-02-21
+
+### Added
+
+- Refactored server to use modern `StreamableHTTPServerTransport` for HTTP/SSE.
+- Implemented robust multi-client support by dynamically allocating `McpServer` instances per session.
+- Added session routing using the `mcp-session-id` header.
+- Implemented automatic stale session cleanup (1-hour timeout).
+- Added more detailed debug logs for transport troubleshooting.
+
+## [1.2.2] - 2026-02-21
+
+- Refactored SSE server implementation to support **multiple concurrent client connections**.
+- Resolved the "Already connected to a transport" error by creating a dedicated `McpServer` instance per SSE session.
+- Implemented session tracking using a `sessions` Map and correctly routing messages to individual transports based on `sessionId`.
+- Extracted tool registration into a reusable `registerAllTools` function.
+
 ## [1.2.1] - 2026-02-21
 
 - Fixed `MODULE_NOT_FOUND` error in Docker container by moving several runtime dependencies (`@modelcontextprotocol/sdk`, `axios`, `better-sqlite3`, `dotenv`, `zod`) from `devDependencies` to `dependencies` in `package.json`.
