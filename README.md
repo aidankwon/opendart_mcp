@@ -126,17 +126,22 @@ For n8n instances (especially those running in Docker or remotely), it is recomm
 
 ### 1. Run using Docker (SSE)
 
-The easiest way to deploy is using Docker Compose:
+The easiest way to deploy is using the pre-built image from GitHub Container Registry (GHCR):
 
 ```bash
-# Set your API key in the environment
-export OPENDART_API_KEY=your_api_key_here
+# Pull the latest image
+docker pull ghcr.io/aidankwon/opendart_mcp:latest
 
-# Start the server
-docker-compose up -d
+# Run the container (set your API key)
+docker run -d \
+  -p 3000:3000 \
+  -e OPENDART_API_KEY=your_api_key_here \
+  -v opendart-cache:/app/data \
+  --name opendart-mcp \
+  ghcr.io/aidankwon/opendart_mcp:latest
 ```
 
-The server will be available at `http://your-host-ip:3000/sse`.
+Alternatively, you can use Docker Compose with the provided `docker-compose.yml`. The project is configured with CI/CD to automatically build and push new images to GHCR on every push to `main`.
 
 ### 2. Manual SSE Startup
 
