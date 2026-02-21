@@ -1,5 +1,14 @@
 # Changes
 
+## [1.2.0] - 2026-02-21
+
+- Added support for **SSE (Server-Sent Events)** transport to enable compatibility with n8n and other remote MCP clients.
+- Implemented `/sse` and `/messages` endpoints using `SSEServerTransport`.
+- Added a `--sse` command-line flag and `MCP_TRANSPORT=sse` environment variable to switch between `stdio` and `sse` modes.
+- Added a `start:sse` NPM script for easier deployment.
+- Created a `Dockerfile` and `docker-compose.yml` for containerized deployment.
+- Updated documentation with n8n integration guides.
+
 ## [1.1.0] - 2026-02-21
 
 ### Added

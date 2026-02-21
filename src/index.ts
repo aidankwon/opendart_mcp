@@ -5,6 +5,9 @@ console.log = console.error;
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
+import express from 'express';
+import cors from 'cors';
 import { z } from 'zod';
 import { OpenDartClient } from './api/client.js';
 import { SqliteCache } from './db/cache.js';
@@ -602,9 +605,38 @@ server.registerTool(
 );
 // Start server
 async function main() {
-  const transport = new StdioServerTransport();
-  await server.connect(transport);
-  console.error('Open DART MCP Server running on stdio');
+  const isSse = process.argv.includes('--sse') || process.env.MCP_TRANSPORT === 'sse';
+
+  if (isSse) {
+    const app = express();
+    app.use(cors());
+
+    let transport: SSEServerTransport | null = null;
+
+    app.get('/sse', async (req, res) => {
+      console.error('[DEBUG] New SSE connection');
+      transport = new SSEServerTransport('/messages', res);
+      await server.connect(transport);
+    });
+
+    app.post('/messages', async (req, res) => {
+      console.error('[DEBUG] Received message');
+      if (transport) {
+        await transport.handlePostMessage(req, res);
+      } else {
+        res.status(400).send('No active SSE connection');
+      }
+    });
+
+    const port = process.env.PORT || 3000;
+    app.listen(port, () => {
+      console.error(`Open DART MCP Server running on SSE at http://localhost:${port}/sse`);
+    });
+  } else {
+    const transport = new StdioServerTransport();
+    await server.connect(transport);
+    console.error('Open DART MCP Server running on stdio');
+  }
 }
 
 main().catch((error) => {

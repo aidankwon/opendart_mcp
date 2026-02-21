@@ -120,6 +120,40 @@ To run this server with Gemini CLI, you can simply add it to your `~/.gemini/mcp
 }
 ```
 
+## Deployment to n8n
+
+For n8n instances (especially those running in Docker or remotely), it is recommended to use the **SSE (Server-Sent Events)** transport.
+
+### 1. Run using Docker (SSE)
+
+The easiest way to deploy is using Docker Compose:
+
+```bash
+# Set your API key in the environment
+export OPENDART_API_KEY=your_api_key_here
+
+# Start the server
+docker-compose up -d
+```
+
+The server will be available at `http://your-host-ip:3000/sse`.
+
+### 2. Manual SSE Startup
+
+If you prefer to run it manually:
+
+```bash
+npm run build
+npm run start:sse
+```
+
+### 3. Register in n8n
+
+1.  In your n8n workflow, add an **MCP Client Tool** node.
+2.  Set **Server Transport** to `SSE`.
+3.  Set **SSE URL** to `http://your-host-ip:3000/sse`.
+4.  Configure any necessary authentication if you've added a proxy (this server has no built-in auth for the SSE endpoint itself).
+
 ## License
 
 ISC

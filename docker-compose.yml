@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  opendart-mcp:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - OPENDART_API_KEY=${OPENDART_API_KEY}
+      - PORT=3000
+    volumes:
+      - ./data:/app/data
+    restart: always
