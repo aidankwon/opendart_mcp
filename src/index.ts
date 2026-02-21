@@ -10,6 +10,7 @@ import { OpenDartClient } from './api/client.js';
 import { SqliteCache } from './db/cache.js';
 import dotenv from 'dotenv';
 import path from 'path';
+import fs from 'fs';
 
 // Load environment variables
 dotenv.config();
@@ -20,10 +21,18 @@ if (!API_KEY) {
   process.exit(1);
 }
 
+import os from 'os';
+
 // Initialize dependencies
+const defaultCacheDir = path.join(os.homedir(), '.opendart-mcp');
+if (!fs.existsSync(defaultCacheDir)) {
+  fs.mkdirSync(defaultCacheDir, { recursive: true });
+}
+
 const cachePath = process.env.OPENDART_CACHE_DIR
   ? path.join(process.env.OPENDART_CACHE_DIR, 'cache.db')
-  : path.join(__dirname, '..', 'cache.db');
+  : path.join(defaultCacheDir, 'cache.db');
+console.error(`[DEBUG] Resolved cache path: ${cachePath}`);
 const cache = new SqliteCache(cachePath);
 const client = new OpenDartClient(API_KEY, cache);
 

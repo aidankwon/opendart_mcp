@@ -15,27 +15,31 @@ export class SqliteCache {
   }
 
   private init() {
-    this.db.exec(`
-      CREATE TABLE IF NOT EXISTS cache (
-        key TEXT PRIMARY KEY,
-        value TEXT,
-        expires_at INTEGER
-      )
-    `);
-    
-    // Create an index for expiry cleanups
-    this.db.exec(`CREATE INDEX IF NOT EXISTS idx_expires_at ON cache(expires_at)`);
+    try {
+      this.db.exec(`
+        CREATE TABLE IF NOT EXISTS cache (
+          key TEXT PRIMARY KEY,
+          value TEXT,
+          expires_at INTEGER
+        )
+      `);
+      
+      // Create an index for expiry cleanups
+      this.db.exec(`CREATE INDEX IF NOT EXISTS idx_expires_at ON cache(expires_at)`);
 
-    this.db.exec(`
-      CREATE TABLE IF NOT EXISTS corp_codes (
-        corp_code TEXT PRIMARY KEY,
-        corp_name TEXT,
-        stock_code TEXT,
-        modify_date TEXT
-      )
-    `);
+      this.db.exec(`
+        CREATE TABLE IF NOT EXISTS corp_codes (
+          corp_code TEXT PRIMARY KEY,
+          corp_name TEXT,
+          stock_code TEXT,
+          modify_date TEXT
+        )
+      `);
 
-    this.db.exec(`CREATE INDEX IF NOT EXISTS idx_corp_name ON corp_codes(corp_name)`);
+      this.db.exec(`CREATE INDEX IF NOT EXISTS idx_corp_name ON corp_codes(corp_name)`);
+    } catch (error: any) {
+      console.error(`[WARNING] Failed to initialize SQLite cache: ${error.message}. Caching will be disabled.`);
+    }
   }
 
   get(key: string): string | null {

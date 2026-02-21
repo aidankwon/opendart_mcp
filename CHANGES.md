@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+- Improved cache reliability and portability:
+  - Changed the default cache path to `~/.opendart-mcp/cache.db` to avoid "readonly database" or permission errors when the server is executed from restricted environments.
+  - Made the SQLite cache initialization non-fatal; the MCP server will now gracefully continue even if the local database cannot be opened or written to.
+  - Added a diagnostic log in `index.ts` to surface the resolved cache path for easier troubleshooting.
+
 - Refactored `McpServer` tools API to use the new `registerTool` method instead of the deprecated `McpServer.tool` method. All 18 tools were migrated to explicitly use `z.object()` wrapped schemas inside a configuration object, improving type safety as per the updated `@modelcontextprotocol/sdk` documentation.
 
 - Added 3 consolidated MCP tools covering the OpenDART DS004, DS005, and DS006 API groups:
