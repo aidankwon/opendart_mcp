@@ -89,7 +89,37 @@ export class OpenDartClient {
     page_no?: number;
     page_count?: number;
   }): Promise<DisclosureSearchResponse> {
-    return this.fetch<DisclosureSearchResponse>('/list.json', params);
+    const result = await this.fetch<DisclosureSearchResponse>('/list.json', params);
+
+    if (result.list && result.list.length > 0) {
+      const sort = params.sort || 'date';
+      const sortMthd = params.sort_mthd || 'desc';
+
+      result.list.sort((a, b) => {
+        let valA: string = '';
+        let valB: string = '';
+
+        if (sort === 'date') {
+          // rcept_no is better than rcept_dt because it includes sequence
+          valA = a.rcept_no;
+          valB = b.rcept_no;
+        } else if (sort === 'crp') {
+          valA = a.corp_name;
+          valB = b.corp_name;
+        } else if (sort === 'rpt') {
+          valA = a.report_nm;
+          valB = b.report_nm;
+        }
+
+        if (sortMthd === 'asc') {
+          return valA.localeCompare(valB);
+        } else {
+          return valB.localeCompare(valA);
+        }
+      });
+    }
+
+    return result;
   }
 
   // DS001/DS002

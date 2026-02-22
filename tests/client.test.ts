@@ -86,6 +86,29 @@ describe('OpenDartClient', () => {
     await expect(client.getDisclosureList({})).rejects.toThrow('Open DART API Error: Unregistered API key');
   });
 
+  it('should manually sort the disclosure list', async () => {
+    mockCache.get.mockReturnValue(null);
+    const list = [
+      { rcept_no: '20230101000001', corp_name: 'Corp B', report_nm: 'Report X' },
+      { rcept_no: '20230101000003', corp_name: 'Corp A', report_nm: 'Report Z' },
+      { rcept_no: '20230101000002', corp_name: 'Corp C', report_nm: 'Report Y' },
+    ];
+    const apiResponse = { data: { status: '000', message: 'OK', list } };
+    mockAxios.get.mockResolvedValue(apiResponse);
+
+    // Default: date desc
+    const result = await client.getDisclosureList({});
+    expect(result.list[0].rcept_no).toBe('20230101000003');
+    expect(result.list[1].rcept_no).toBe('20230101000002');
+    expect(result.list[2].rcept_no).toBe('20230101000001');
+
+    // Sort by corp name asc
+    const resultCorp = await client.getDisclosureList({ sort: 'crp', sort_mthd: 'asc' });
+    expect(resultCorp.list[0].corp_name).toBe('Corp A');
+    expect(resultCorp.list[1].corp_name).toBe('Corp B');
+    expect(resultCorp.list[2].corp_name).toBe('Corp C');
+  });
+
   describe('getPeriodicReportInfo', () => {
     it('should format the correct URL based on targetApi', async () => {
       mockCache.get.mockReturnValue(null);

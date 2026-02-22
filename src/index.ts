@@ -69,16 +69,17 @@ function registerAllTools(server: McpServer) {
   server.registerTool(
     'search_disclosures',
     {
+      description: "Search and list corporate disclosures. For the most recent disclosures, specify sort='date' and sort_mthd='desc'.",
       inputSchema: z.object({
         corp_code: z.string().regex(/^\d{8}$/).optional().describe('8-digit unique company code. Use search_corpcode first to find this.'),
         bgn_de: z.string().regex(/^\d{8}$/).optional().describe('Start date in YYYYMMDD format (e.g., 20240101)'),
-        end_de: z.string().regex(/^\d{8}$/).optional().describe('End date in YYYYMMDD format (e.g., 20241231)'),
+        end_de: z.string().regex(/^\d{8}$/).optional().describe('End date in YYYYMMDD format (e.g., 20241231). For latest data, use today\'s date.'),
         last_reprt_at: z.enum(['Y', 'N']).optional().describe('Search only the latest report (Y/N)'),
         pblntf_ty: z.string().optional().describe('Publication type code (e.g., A for Periodic, B for Fair Disclosure)'),
         pblntf_detail_ty: z.string().optional().describe('Detailed publication type code'),
         corp_cls: z.enum(['Y', 'K', 'N', 'E']).optional().describe('Corporation class: Y (KOSPI), K (KOSDAQ), N (KONEX), E (ETC)'),
-        sort: z.enum(['date', 'crp', 'rpt']).optional().describe('Sort field: date (Publication date), crp (Company name), rpt (Report name)'),
-        sort_mthd: z.enum(['asc', 'desc']).optional().describe('Sort method: asc (Ascending), desc (Descending)'),
+        sort: z.enum(['date', 'crp', 'rpt']).optional().default('date').describe('Sort field: Use \'date\' for chronological order (essential for finding latest disclosures).'),
+        sort_mthd: z.enum(['asc', 'desc']).optional().default('desc').describe('Sort method: Use \'desc\' to show the most recent disclosures first.'),
         page_no: z.number().optional().describe('Page number'),
         page_count: z.number().optional().describe('Number of items per page (max 100)'),
       })
@@ -151,7 +152,7 @@ function registerAllTools(server: McpServer) {
       inputSchema: z.object({
         corp_code: z.string().regex(/^\d{8}$/).describe('8-digit unique company code (e.g., 00126380)'),
         bsns_year: z.string().regex(/^\d{4}$/).describe('Business year in YYYY format (e.g., 2023)'),
-        reprt_code: z.enum(['11013', '11012', '11014', '11011']).describe('Report code: 11013 (Q1), 11012 (Half-year), 11014 (Q3), 11011 (Annual)'),
+        reprt_code: z.enum(['11013', '11012', '11014', '11011']).describe('Report code: 11011 (Annual), 11012 (Half-year), 11013 (Q1), 11014 (Q3). Use the most recent period for current data.'),
         fs_div: z.enum(['CFS', 'OFS']).describe('FS division: CFS (Consolidated), OFS (Separate)'),
       })
     },
@@ -177,7 +178,7 @@ function registerAllTools(server: McpServer) {
       inputSchema: z.object({
         corp_code: z.string().describe('Up to 5 corporate codes separated by commas (e.g., "00126380,00164779")'),
         bsns_year: z.string().regex(/^\d{4}$/).describe('Business year in YYYY format (e.g., 2023)'),
-        reprt_code: z.enum(['11013', '11012', '11014', '11011']).describe('Report code: 11013 (Q1), 11012 (Half-year), 11014 (Q3), 11011 (Annual)'),
+        reprt_code: z.enum(['11013', '11012', '11014', '11011']).describe('Report code: 11011 (Annual), 11012 (Half-year), 11013 (Q1), 11014 (Q3). Use the most recent period for current data.'),
         fs_div: z.enum(['CFS', 'OFS']).optional().describe('FS division: CFS (Consolidated), OFS (Separate)'),
       })
     },
@@ -203,7 +204,7 @@ function registerAllTools(server: McpServer) {
       inputSchema: z.object({
         corp_code: z.string().regex(/^\d{8}$/).describe('8-digit unique company code (e.g., 00126380)'),
         bsns_year: z.string().regex(/^\d{4}$/).describe('Business year in YYYY format (e.g., 2023)'),
-        reprt_code: z.enum(['11013', '11012', '11014', '11011']).describe('Report code: 11013 (Q1), 11012 (Half-year), 11014 (Q3), 11011 (Annual)'),
+        reprt_code: z.enum(['11013', '11012', '11014', '11011']).describe('Report code: 11011 (Annual), 11012 (Half-year), 11013 (Q1), 11014 (Q3). Use the most recent period for current data.'),
         fs_div: z.enum(['CFS', 'OFS']).describe('FS division: CFS (Consolidated), OFS (Separate)'),
       })
     },
@@ -253,7 +254,7 @@ function registerAllTools(server: McpServer) {
       inputSchema: z.object({
         corp_code: z.string().regex(/^\d{8}$/).describe('8-digit unique company code (e.g., 00126380)'),
         bsns_year: z.string().regex(/^\d{4}$/).describe('Business year in YYYY format (e.g., 2023)'),
-        reprt_code: z.enum(['11013', '11012', '11014', '11011']).describe('Report code: 11013 (Q1), 11012 (Half-year), 11014 (Q3), 11011 (Annual)'),
+        reprt_code: z.enum(['11013', '11012', '11014', '11011']).describe('Report code: 11011 (Annual), 11012 (Half-year), 11013 (Q1), 11014 (Q3). Use the most recent period for current data.'),
         idx_cl_code: z.enum(['M210000', 'M220000', 'M230000', 'M240000']).describe('Indicator classification code: M210000 (Profitability), M220000 (Stability), M230000 (Growth), M240000 (Activity)'),
       })
     },
@@ -279,7 +280,7 @@ function registerAllTools(server: McpServer) {
       inputSchema: z.object({
       corp_code: z.string().describe('Multiple 8-digit unique company codes separated by commas (max 5)'),
       bsns_year: z.string().describe('Business year (YYYY)'),
-      reprt_code: z.string().describe('Report code (e.g., 11011 for Annual)'),
+      reprt_code: z.string().describe('Report code: 11011 (Annual), 11012 (Half-year), 11013 (Q1), 11014 (Q3). Use the most recent period for current data.'),
       idx_cl_code: z.enum(['M210000', 'M220000', 'M230000', 'M240000']).describe('Indicator classification code (M210000: Profitability, M220000: Stability, M230000: Growth, M240000: Activity)'),
     })
     },
@@ -305,7 +306,7 @@ function registerAllTools(server: McpServer) {
       inputSchema: z.object({
         corp_code: z.string().regex(/^\d{8}$/).describe('8-digit unique company code (e.g., 00126380)'),
         bsns_year: z.string().regex(/^\d{4}$/).describe('Business year in YYYY format (e.g., 2023)'),
-        reprt_code: z.enum(['11013', '11012', '11014', '11011']).describe('Report code: 11013 (Q1), 11012 (Half-year), 11014 (Q3), 11011 (Annual)'),
+        reprt_code: z.enum(['11013', '11012', '11014', '11011']).describe('Report code: 11011 (Annual), 11012 (Half-year), 11013 (Q1), 11014 (Q3). Use the most recent period for current data.'),
       })
     },
     async (params) => {
@@ -353,7 +354,7 @@ function registerAllTools(server: McpServer) {
       inputSchema: z.object({
       corp_code: z.string().regex(/^\d{8}$/).describe('8-digit unique company code (e.g., 00126380)'),
       bgn_de: z.string().regex(/^\d{8}$/).optional().describe('Start date in YYYYMMDD format (e.g., 20240101)'),
-      end_de: z.string().regex(/^\d{8}$/).optional().describe('End date in YYYYMMDD format (e.g., 20241231)'),
+      end_de: z.string().regex(/^\d{8}$/).optional().describe('End date in YYYYMMDD format (e.g., 20241231). For latest data, use today\'s date.'),
     })
     },
     async (params) => {
@@ -378,7 +379,7 @@ function registerAllTools(server: McpServer) {
       inputSchema: z.object({
       corp_code: z.string().regex(/^\d{8}$/).describe('8-digit unique company code (e.g., 00126380)'),
       bgn_de: z.string().optional().describe('Start date (YYYYMMDD)'),
-      end_de: z.string().optional().describe('End date (YYYYMMDD)'),
+      end_de: z.string().optional().describe('End date (YYYYMMDD). For latest data, use today\'s date.'),
     })
     },
     async (params) => {
@@ -437,7 +438,7 @@ function registerAllTools(server: McpServer) {
           .describe('Specific periodic report category to fetch (e.g., EMPLOYEE_STATUS, TOTAL_SHARES, DIVIDEND)'),
         corp_code: z.string().regex(/^\d{8}$/).describe('8-digit unique company code (e.g., 00126380)'),
         bsns_year: z.string().regex(/^\d{4}$/).describe('Business year in YYYY format (e.g., 2023)'),
-        reprt_code: z.enum(['11013', '11012', '11014', '11011']).describe('Report code: 11013 (Q1), 11012 (Half-year), 11014 (Q3), 11011 (Annual)')
+        reprt_code: z.enum(['11013', '11012', '11014', '11011']).describe('Report code: 11011 (Annual), 11012 (Half-year), 11013 (Q1), 11014 (Q3).')
       })
     },
     async (params) => {
@@ -541,7 +542,7 @@ function registerAllTools(server: McpServer) {
           .describe('Specific major issues report category (e.g., MERGER_DECISION, PAID_IN_CAPITAL_INCREASE, BANKRUPTCY)'),
         corp_code: z.string().regex(/^\d{8}$/).describe('8-digit unique company code (e.g., 00126380)'),
         bgn_de: z.string().regex(/^\d{8}$/).describe('Search start date in YYYYMMDD format (e.g., 20240101)'),
-        end_de: z.string().regex(/^\d{8}$/).describe('Search end date in YYYYMMDD format (e.g., 20241231)')
+        end_de: z.string().regex(/^\d{8}$/).describe('Search end date in YYYYMMDD format (e.g., 20241231). For latest data, use today\'s date.')
       })
     },
     async (params) => {
@@ -581,7 +582,7 @@ function registerAllTools(server: McpServer) {
           .describe('Specific registration statement category (e.g., EQUITY_SECURITIES, DEBT_SECURITIES, MERGER_STATEMENT)'),
         corp_code: z.string().regex(/^\d{8}$/).describe('8-digit unique company code (e.g., 00126380)'),
         bgn_de: z.string().regex(/^\d{8}$/).describe('Search start date in YYYYMMDD format (e.g., 20240101)'),
-        end_de: z.string().regex(/^\d{8}$/).describe('Search end date in YYYYMMDD format (e.g., 20241231)')
+        end_de: z.string().regex(/^\d{8}$/).describe('Search end date in YYYYMMDD format (e.g., 20241231). For latest data, use today\'s date.')
       })
     },
     async (params) => {

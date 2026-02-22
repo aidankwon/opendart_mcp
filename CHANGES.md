@@ -1,5 +1,13 @@
 # Changes
 
+## [2.2.0] - 2026-02-22
+
+### Enhanced
+
+- **Optimized Tool Descriptions for LLM Behavior**: Updated descriptions across all MCP tools to guide the LLM in choosing correct parameters for temporal queries (latest/recent data).
+- **Manual Disclosure Sorting**: Implemented manual sorting in the `OpenDartClient` to ensure the `search_disclosures` tool correctly orders results (defaulting to date descending). This addresses the issue where the API backend's sorting was ineffective.
+- **Improved Parameter Guidance**: Added explicit instructions for `bgn_de`, `end_de`, `bsns_year`, and `reprt_code` across multiple tools to reduce hallucination and improve data retrieval accuracy.
+
 ## [2.1.0] - 2026-02-21
 
 ### Added
