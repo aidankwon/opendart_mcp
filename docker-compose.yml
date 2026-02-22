@@ -1,8 +1,7 @@
-version: '3.8'
 
 services:
   opendart-mcp:
-    build: .
+    image: ghcr.io/aidankwon/opendart_mcp:latest
     ports:
       - "3000:3000"
     environment:
