@@ -7,10 +7,11 @@ This server provides tools to access Korean corporate filings, company overviews
 ## Features
 
 - **Built-in Caching:** Uses SQLite to cache API responses locally and reduce redundant network calls.
-- **Modern HTTP Transport:** Uses the `StreamableHTTPServerTransport` for robust HTTP/SSE communication.
-- **Concurrent Multi-Client Support:** Supports multiple simultaneous client connections with isolated session state.
-- **Comprehensive API Coverage:** Exposes multiple Open DART API endpoints as easily consumable MCP tools.
-- **TypeScript & Zod:** Strongly typed inputs and outputs for AI assistants.
+- **Modern HTTP Transport:** Powered by `StreamableHTTPServerTransport`, providing a robust and scalable HTTP/SSE connection model.
+- **Concurrent Multi-Client Support:** Seamlessly handles multiple simultaneous client connections by dynamically allocating isolated session states and transports.
+- **Session Continuity:** Features session routing via `mcp-session-id` and automatic cleanup of stale sessions.
+- **Comprehensive API Coverage:** Exposes 18+ Open DART API endpoints as easily consumable MCP tools with optimized schemas for LLMs.
+- **TypeScript & Zod:** Strongly typed inputs and outputs with strict parameter validation and descriptive hints.
 
 ## Exposed MCP Tools
 
@@ -19,6 +20,7 @@ The server provides the following tools:
 1. **`search_disclosures`** (DS001)
    - Search for corporate public filings.
    - Filters by company code, date range, report type, etc.
+   - **Manual Sorting:** Results are automatically sorted by date (descending) by the server to ensure accuracy, even when the upstream API sorting is inconsistent. Use `sort` and `sort_mthd` for custom ordering.
    - _Note: This API returns metadata and receipt numbers (`rcept_no`). You can use the `get_document` tool with this receipt number to download the actual disclosure document._
 2. **`get_company_overview`** (DS001/DS002)
    - Retrieve basic profile information for a specific company (CEO name, address, website, etc.).
@@ -43,10 +45,10 @@ The server provides the following tools:
 12. **`get_equity_securities_info`** (DS006)
     - Retrieve information about issued equity securities.
 13. **`get_periodic_report_info`** (DS002 consolidator)
-    - Get missing features from the DS002 group, consolidated into a single generic tool for periodic reports. Fetch information such as: dividends, treasury stock, largest shareholders, minority shareholders, executive and employee statuses, executive compensations, debt securities issuance, unredeemed CP/bond balances, auditor names, audit service contracts, and usage of public/private funds.
+    - A powerful consolidated tool for the DS002 group, providing access to 27+ periodic report features. Fetch information such as: dividends, treasury stock, largest shareholders, minority shareholders, executive and employee statuses, executive compensations, debt securities issuance, unredeemed CP/bond balances, auditor names, audit service contracts, and usage of public/private funds.
 14. **`search_corpcode`**
     - Search for a company's 8-digit unique `corp_code` by company name or stock code.
-    - Downloads the full Corporate Code XML dictionary on the first run, stores it in SQLite, and queries locally for subsequent searches.
+    - **Self-Initializing:** Downloads the full Corporate Code XML dictionary (~100k+ entries) on the first run, stores it in a local SQLite database, and queries locally for sub-second searches.
 15. **`get_document`** (DS001)
     - Downloads the full disclosure document (XML format) for a specific filing.
     - Requires a 14-digit receipt number (`rcept_no`), which can be obtained from the `search_disclosures` tool.
@@ -126,15 +128,11 @@ To run this server with Gemini CLI, you can simply add it to your `~/.gemini/mcp
 
 For n8n instances (especially those running in Docker or remotely), it is recommended to use the **Streamable HTTP (SSE)** transport. This modern transport supports multiple concurrent sessions reliably.
 
-### 1. Run using Docker (SSE)
+### 1. Using Docker (Pre-built Image)
 
-The easiest way to deploy is using the pre-built image from GitHub Container Registry (GHCR):
+The fastest way to deploy is using the image from GitHub Container Registry (GHCR):
 
 ```bash
-# Pull the latest image
-docker pull ghcr.io/aidankwon/opendart_mcp:latest
-
-# Run the container (set your API key)
 docker run -d \
   -p 3000:3000 \
   -e OPENDART_API_KEY=your_api_key_here \
@@ -143,42 +141,48 @@ docker run -d \
   ghcr.io/aidankwon/opendart_mcp:latest
 ```
 
-Alternatively, you can use Docker Compose with the provided `docker-compose.yml`. The project is configured with CI/CD to automatically build and push new images to GHCR on every push to `main`.
+### 2. Using Docker Compose
 
-### 2. Build from Source
-
-If you want to build the image yourself:
+Use the provided `docker-compose.yml` for a more managed setup. This ensures the cache is persisted and the container restarts automatically.
 
 ```bash
+# Create a .env file with your key first
+echo "OPENDART_API_KEY=your_key_here" > .env
+
+# Start the service
+docker-compose up -d
+```
+
+### 3. Building from Source
+
+If you prefer to build and run locally:
+
+```bash
+# Build the image
 docker build -t opendart-mcp:latest .
+
+# Run it
+docker run -d -p 3000:3000 -e OPENDART_API_KEY=your_key_here opendart-mcp:latest
 ```
 
-Then run it:
+### 4. Manual Startup (No Docker)
 
-```bash
-docker run -d \
-  -p 3000:3000 \
-  -e OPENDART_API_KEY=your_api_key_here \
-  -v opendart-cache:/app/data \
-  --name opendart-mcp \
-  opendart-mcp:latest
-```
-
-### 3. Manual SSE Startup
-
-If you prefer to run it manually without Docker:
+Running directly on a server:
 
 ```bash
 npm run build
 npm run start:sse
 ```
 
-### 3. Register in n8n
+### 5. Register in n8n
 
 1.  In your n8n workflow, add an **MCP Client Tool** node.
 2.  Set **Server Transport** to `SSE`.
-3.  Set **SSE URL** to `http://your-host-ip:3000/mcp`.
-4.  Configure any necessary authentication if you've added a proxy (this server has no built-in auth for the `/mcp` endpoint itself).
+3.  Set **SSE URL** to `http://<your-host-ip>:3000/mcp`.
+    - **Crucial:** Ensure the path ends in `/mcp`.
+4.  **Session Routing:** The server uses the `mcp-session-id` header to handle multiple clients. n8n handles this automatically.
+5.  **Auto-Cleanup:** Stale sessions are purged after 1 hour of inactivity.
+6.  Configure any necessary firewall rules or proxies to allow n8n to reach port `3000`.
 
 ## License
 
