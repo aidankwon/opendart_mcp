@@ -177,8 +177,8 @@ npm run start:sse
 ### 5. Register in n8n
 
 1.  In your n8n workflow, add an **MCP Client Tool** node.
-2.  Set **Server Transport** to `SSE`.
-3.  Set **SSE URL** to `http://<your-host-ip>:3000/mcp`.
+2.  Set **Server Transport** to `HTTP Streamable`.
+3.  Set **Server URL** to `http://<your-host-ip>:3000/mcp`.
     - **Crucial:** Ensure the path ends in `/mcp`.
 4.  **Session Routing:** The server uses the `mcp-session-id` header to handle multiple clients. n8n handles this automatically.
 5.  **Auto-Cleanup:** Stale sessions are purged after 1 hour of inactivity.
