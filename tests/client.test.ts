@@ -109,6 +109,38 @@ describe('OpenDartClient', () => {
     expect(resultCorp.list[2].corp_name).toBe('Corp C');
   });
 
+  it('should filter out disclosures containing exclude_words in report_nm', async () => {
+    mockCache.get.mockReturnValue(null);
+    const list = [
+      { rcept_no: '20230101000001', corp_name: 'Corp A', report_nm: 'Important Report [Notice]' },
+      { rcept_no: '20230101000002', corp_name: 'Corp B', report_nm: 'Regular Report' },
+      { rcept_no: '20230101000003', corp_name: 'Corp C', report_nm: 'Other Report [Notice]' },
+    ];
+    const apiResponse = { data: { status: '000', message: 'OK', list } };
+    mockAxios.get.mockResolvedValue(apiResponse);
+
+    const result = await client.getDisclosureList({ exclude_words: '[Notice], None' });
+    expect(result.list).toHaveLength(1);
+    expect(result.list[0].report_nm).toBe('Regular Report');
+  });
+
+  it('should limit the number of disclosures', async () => {
+    mockCache.get.mockReturnValue(null);
+    const list = [
+      { rcept_no: '20230101000003', corp_name: 'Corp A', report_nm: 'Z' },
+      { rcept_no: '20230101000002', corp_name: 'Corp B', report_nm: 'Y' },
+      { rcept_no: '20230101000001', corp_name: 'Corp C', report_nm: 'X' },
+    ];
+    // List array sort dates is rcept_no so list order post sort: 20230101000003, 20230101000002, 20230101000001
+    const apiResponse = { data: { status: '000', message: 'OK', list } };
+    mockAxios.get.mockResolvedValue(apiResponse);
+
+    const result = await client.getDisclosureList({ limit: 2 });
+    expect(result.list).toHaveLength(2);
+    expect(result.list[0].rcept_no).toBe('20230101000003');
+    expect(result.list[1].rcept_no).toBe('20230101000002');
+  });
+
   describe('getPeriodicReportInfo', () => {
     it('should format the correct URL based on targetApi', async () => {
       mockCache.get.mockReturnValue(null);

@@ -82,6 +82,8 @@ function registerAllTools(server: McpServer) {
         sort_mthd: z.enum(['asc', 'desc']).optional().default('desc').describe('Sort method: Use \'desc\' to show the most recent disclosures first.'),
         page_no: z.number().optional().describe('Page number'),
         page_count: z.number().optional().describe('Number of items per page (max 100)'),
+        exclude_words: z.string().optional().describe('Comma-separated words to filter out from results by report name.'),
+        limit: z.number().optional().describe('Maximum number of results to return.'),
       })
     },
     async (params) => {

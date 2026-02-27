@@ -20,6 +20,7 @@ The server provides the following tools:
 1. **`search_disclosures`** (DS001)
    - Search for corporate public filings.
    - Filters by company code, date range, report type, etc.
+   - **Post-filtering and Limiting:** Supports filtering out results by specific keywords in the report name (`exclude_words`) and limiting the total number of results returned (`limit`).
    - **Manual Sorting:** Results are automatically sorted by date (descending) by the server to ensure accuracy, even when the upstream API sorting is inconsistent. Use `sort` and `sort_mthd` for custom ordering.
    - _Note: This API returns metadata and receipt numbers (`rcept_no`). You can use the `get_document` tool with this receipt number to download the actual disclosure document._
 2. **`get_company_overview`** (DS001/DS002)

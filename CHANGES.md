@@ -1,5 +1,13 @@
 # Changes
 
+## [2.3.0] - 2026-02-27
+
+### Added
+
+- **Search Disclosures Filtering and Limiting**: Added `exclude_words` and `limit` parameters to the `search_disclosures` tool.
+  - `exclude_words`: Allows filtering out results that contain specific comma-separated keywords in their report name.
+  - `limit`: Restricts the maximum number of results returned after fetching and sorting.
+
 ## [2.2.0] - 2026-02-22
 
 ### Enhanced

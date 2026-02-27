@@ -88,8 +88,11 @@ export class OpenDartClient {
     sort_mthd?: 'asc' | 'desc';
     page_no?: number;
     page_count?: number;
+    exclude_words?: string;
+    limit?: number;
   }): Promise<DisclosureSearchResponse> {
-    const result = await this.fetch<DisclosureSearchResponse>('/list.json', params);
+    const { exclude_words, limit, ...apiParams } = params;
+    const result = await this.fetch<DisclosureSearchResponse>('/list.json', apiParams);
 
     if (result.list && result.list.length > 0) {
       const sort = params.sort || 'date';
@@ -117,6 +120,20 @@ export class OpenDartClient {
           return valB.localeCompare(valA);
         }
       });
+      
+      if (params.exclude_words) {
+        const words = params.exclude_words.split(',').map(w => w.trim()).filter(w => w.length > 0);
+        if (words.length > 0) {
+          result.list = result.list.filter(item => {
+            const reportNm = item.report_nm || '';
+            return !words.some(word => reportNm.includes(word));
+          });
+        }
+      }
+
+      if (params.limit !== undefined && params.limit > 0) {
+        result.list = result.list.slice(0, params.limit);
+      }
     }
 
     return result;
