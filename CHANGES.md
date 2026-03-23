@@ -1,5 +1,13 @@
 # Changes
 
+## [2.3.1] - 2026-03-23
+
+### Fixed
+
+- **Found Error:** `Error: ADM-ZIP: Invalid or unsupported zip format. No END header found` when downloading a document using `getDocument` or `getXbrlOriginalFile` with an invalid receipt number or when a file does not exist.
+  - **Cause:** When an error occurs, the OpenDART API responds with an XML payload containing an error code (e.g., status `014`), instead of a ZIP archive. The client was always assuming a ZIP archive or a JSON payload, passing the XML string to `AdmZip` and causing a crash.
+  - **Successful Fix:** Added a check for XML error payloads (verifying if the buffer starts with `<` ASCII 60) in the buffer response. The XML is parsed, and if the status code is not `'000'`, an appropriate `Error` is thrown with the OpenDART API message.
+
 ## [2.3.0] - 2026-02-27
 
 ### Added

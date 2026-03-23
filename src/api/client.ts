@@ -238,6 +238,16 @@ export class OpenDartClient {
         }
       }
 
+      // Check if it's an error XML response (starts with '<' - ASCII 60)
+      if (buffer.length > 0 && buffer[0] === 60) {
+        const xmlStr = buffer.toString('utf8');
+        const parser = new XMLParser({ parseTagValue: false });
+        const parsed = parser.parse(xmlStr);
+        if (parsed.result && parsed.result.status && parsed.result.status !== '000') {
+             throw new Error(`Open DART API Error: ${parsed.result.message} (Code: ${parsed.result.status})`);
+        }
+      }
+
       console.error('[DEBUG] Extracting XBRL zip...');
       const zip = new AdmZip(buffer);
       const zipEntries = zip.getEntries();
@@ -370,6 +380,16 @@ export class OpenDartClient {
         }
         if (errData && errData.status && errData.status !== '000') {
              throw new Error(`Open DART API Error: ${errData.message} (Code: ${errData.status})`);
+        }
+      }
+
+      // Check if it's an error XML response (starts with '<' - ASCII 60)
+      if (buffer.length > 0 && buffer[0] === 60) {
+        const xmlStr = buffer.toString('utf8');
+        const parser = new XMLParser({ parseTagValue: false });
+        const parsed = parser.parse(xmlStr);
+        if (parsed.result && parsed.result.status && parsed.result.status !== '000') {
+             throw new Error(`Open DART API Error: ${parsed.result.message} (Code: ${parsed.result.status})`);
         }
       }
 
